@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-
-const Profile = () => {
+// props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף
+const Profile = (props) => {
 
     return(
         <View style={styles.container}>
