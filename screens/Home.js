@@ -5,6 +5,13 @@ import { FlatList } from 'react-native-gesture-handler';
 // props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף
 
 
+
+//need barbers list , openings , and bookings
+// onClick on barber -> opened flatlist with openings onClick opening -> pop up yes/no -> set to booking
+// flat list showing all bookings
+
+
+//
 const Home = (props) => {
     const [barberList , setBarberList] = useState([])
     useEffect( ()=> {
@@ -24,31 +31,6 @@ const Home = (props) => {
       .catch((error) =>{
           console.error(error);
       })},[])
-    // async ()=>{
-    //      const getBarbers = async()=>{
-    //         const list = await fetch('http://localhost:5988/allUsers',{
-    //             method: 'GET',// denpends upon your call POST or GET
-    //             headers: {
-    //             Accept: 'application/json',
-    //             'Content-Type': 'application/json',
-    //             'Access-Control-Allow-Origin':'*'
-    //             }
-    //         })
-    //         console.log(JSON.stringify(list))
-    //         return list.json();
-    //      }
-    //             try{
-    //             let response =  getBarbers();
-    //             console.log(response)
-    //             setBarberList(response)
-    //             console.log(state.barberList)
-    //             }
-    //             catch(err){
-    //                 console.error(err);
-    //             }
-    // //         }
-    // },[]);
-    // console.log('props'+JSON.stringify(props))
 
    
     return(
@@ -65,17 +47,14 @@ const Home = (props) => {
                     data={barberList}//which data to use
                     keyExtractor={barber => barber.username}//unique id for the item
                     renderItem={barberDetails => //what will be shown from the item
-                    <TouchableOpacity onPress={() => {props.navigation.navigate('Profile',{barberDetails: barberDetails.item} ) } }>
-                                  <View style={{
-                                  
-                                  backgroundColor:'fff',
+                    // <TouchableOpacity onPress={() => {props.navigation.navigate('Profile',{barberDetails: barberDetails.item} )}}>
+                                  <View style={{backgroundColor:'fff',
                                   width:'100%',
                                   padding:22,
                                   marginBottom:10,
                                   borderRadius:10}}>
-                                    <Text>{barberDetails.item.username}</Text>
                                   </View>
-                    </TouchableOpacity>
+              //      </TouchableOpacity>
                 }/>
 
         </View>
@@ -89,9 +68,7 @@ const styles = StyleSheet.create({
       backgroundColor: '#30E4DE',
       alignItems: 'center',
       justifyContent: 'center',
-      
     },
-        
     buttonStyle: {
         flex: 0.3,
         color: 'red',

@@ -12,6 +12,7 @@ const Entry = (props) => {
     const [isCorrect,setIsCorrect] = useState(false);
     useEffect( ()=> {
       //setIsCorrect(false);
+      setAllusers(false);
       const allusers = fetch('http://localhost:5988/allUsers',{
           method: 'GET',// denpends upon your call POST or GET
           headers: {
@@ -23,11 +24,22 @@ const Entry = (props) => {
     .then((response_All_Users) => response_All_Users.json())
     .then((response_Json_All_Users) => {
       setAllusers(response_Json_All_Users)
-
     })
     .catch((error) =>{
         console.error(error);
     })},[])
+
+    useEffect( ()=> {
+
+      if(isCorrect){
+        const redirectedUsername = username;
+        setUsername('');
+        setPassword('');
+        setIsCorrect(false);
+        props.navigation.navigate('Home', {username : redirectedUsername })
+
+      }
+    }, [isCorrect])
 
 // ***************************************************************************
 
@@ -35,7 +47,7 @@ const Entry = (props) => {
     const passwordCheck = async() => {
 
       try{
-          await fetch('http://localhost:5988/checkPassword', {
+          fetch('http://localhost:5988/checkPassword', {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -67,18 +79,8 @@ const Entry = (props) => {
               if(user.username == username)
               {
                 console.log("(user.username == username) = true");
-                try{
-                  
-                  passwordCheck()
-                  if(isCorrect)
-                    {
-                      console.log("isCorrect is true");
-                      props.navigation.navigate('Home', {username : username })
-                    }
-                    else{
-                      console.log("isCorrect is false");
-                    }
-                  
+                try{              
+                  passwordCheck() 
                 }
                 catch(err)
                 {
