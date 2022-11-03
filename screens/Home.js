@@ -65,8 +65,10 @@ const Home = (props) => {
                     data={barberList}//which data to use
                     keyExtractor={barber => barber.username}//unique id for the item
                     renderItem={barberDetails => //what will be shown from the item
-                    <TouchableOpacity onPress={() => {props.navigation.navigate('Profile',{barberDetails: barberDetails.item} )}}>
-                                  <View style={{backgroundColor:'fff',
+                    <TouchableOpacity onPress={() => {props.navigation.navigate('Profile',{barberDetails: barberDetails.item} ) } }>
+                                  <View style={{
+                                  
+                                  backgroundColor:'fff',
                                   width:'100%',
                                   padding:22,
                                   marginBottom:10,
@@ -87,7 +89,9 @@ const styles = StyleSheet.create({
       backgroundColor: '#30E4DE',
       alignItems: 'center',
       justifyContent: 'center',
+      
     },
+        
     buttonStyle: {
         flex: 0.3,
         color: 'red',
