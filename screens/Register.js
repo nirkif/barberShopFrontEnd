@@ -1,36 +1,223 @@
-import React from 'react';
-import { StyleSheet, Text, View ,TouchableOpacity } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
+
 // props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף
 const Register = (props) => {
-    var people = [{name:'moshe',phoneNumber:'053-125162'}, {name:'david',phoneNumber:'055-121262'}, {name:'nissim',phoneNumber:'053-7331'}, {name:'menashe',phoneNumber:'053-12365'}]
-    console.log('props'+JSON.stringify(props))
+    const [username , setUsername] = useState('');
+    const [redirectedUsername,setRedirectedUserName] = useState('');
+    const [name , setName] = useState('');
+    const [password , setPassword] = useState('');
+    const [phoneNumber , setPhoneNumber] = useState('');
+    const [modalVisibleInputsBlanks,setModalVisibleInputBlanks] = useState(false);
+    const [modalVisibleAlreadyExist,setModalVisibleAlreadyExist] = useState(false);
+    const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false);
+    const [isGood, setIsGood] = useState('');
+    const [isGoodUserName, setIsGoodUserName] = useState('');
+
+
+
+
+    console.log('props',JSON.stringify(props))
+    // console.log("is good is: ",JSON.stringify(isGood));
+    // console.log("is good length : ",JSON.stringify(isGood).length);
+    // console.log("isGood is equals : ",JSON.stringify(isGood).length == 0);
+    // console.log("is good username : ",isGoodUserName);
+    const registerUser = async() => {
+      console.log("starting registerUser");
+        if(username != '' && name != '' && password != '' && phoneNumber != '')
+        {
+          console.log("username != '' && name != '' && password != '' && phoneNumber != ''  == ",username != '' && name != '' && password != '' && phoneNumber != '');
+            try{
+              await fetch('http://localhost:5988/findByUserName/'+username,{
+                    method: 'GET',// denpends upon your call POST or GET
+                    headers: {
+                      Accept: 'application/json',
+                      'Content-Type': 'application/json',
+                      'Access-Control-Allow-Origin':'*'
+                    }
+                  }).then(response => response.json()).then(responseJSON => setIsGood(responseJSON))
+        }catch(err) {
+            setIsGood('')
+            console.log("did not find username in the function findByUserName");
+            console.error("ERROR: ",err);
+            console.error("user is not found error");
+        }
+
+        console.log("condition: ",JSON.stringify(isGood) !== "");
+        if(JSON.stringify(isGood).length > 2)
+        {
+          console.log("starting if");
+            setModalVisibleAlreadyExist(!modalVisibleAlreadyExist)
+            setUsername('')
+            setName('')
+            setPassword('')
+            setPhoneNumber('')
+            setIsGood('')
+        }
+        else
+        {
+            console.log("starting else");
+            setRedirectedUserName(username)
+            createAndRedirect()
+        }
+        console.log("done with if/else");
+    }
+    else
+    {
+        setModalVisibleInputBlanks(!modalVisibleInputsBlanks)
+    }
+    }
+    const createAndRedirect = () => {
+      console.log("starting createAndRedirect");
+        try{
+          fetch('http://localhost:5988/addUser', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin':'*'
+          },
+        body: JSON.stringify({
+            username: username,
+            password: password,
+            name: name,
+            phoneNumber: phoneNumber
+          })
+        }).then((response) => response.json())
+            setModalVisibleSuccess(!modalVisibleSuccess)
+            console.log("routing to Home");
+            props.navigation.navigate('Home', {username : redirectedUsername })
+          
+
+        }
+      catch(err) { console.error(err);}
+    }
     return(
         <View style={styles.container}>
-            <Text style={styles.title}>Register</Text>
+            <Text style={styles.title}>Register to Site</Text>
+            <Text style={styles.textStyle}> User name</Text>
+            <TextInput
+            style={styles.input}
+            keyboardType="default"
+            value={username}
+            onChangeText={(text) => setUsername(text)}
+            />
+            <Text style={styles.textStyle}>Password</Text>
+            <TextInput
+            secureTextEntry={true}
+            style={styles.input}
+            keyboardType="default"
+            value={password}
+            onChangeText={(text) => setPassword(text)}
+            />
+            <Text style={styles.textStyle}>Private Name</Text>
+            <TextInput
+            style={styles.input}
+            keyboardType="default"
+            value={name}
+            onChangeText={(text) => setName(text)}
+            />
+            <Text style={styles.textStyle}>Phone Number</Text>
+            <TextInput
+            style={styles.input}
+            keyboardType="default"
+            value={phoneNumber}
+            onChangeText={(text) => setPhoneNumber(text)}
+            />
 
-            <TouchableOpacity onPress={ () => { props.navigation.navigate('Home',{name:'nissim', phoneNumber:'053-226745'} )}} style={styles.buttonStyle}>   
+
+            <TouchableOpacity onPress={ registerUser } style={styles.btnSecondery}>   
                 <Text>Register to site</Text>
             </TouchableOpacity>
-        
+    
 
-        <View style={styles.container}>
-        <FlatList
-                    data={people}//which data to use
-                    keyExtractor={man => man.name}//unique id for the item
-                    renderItem={manDetails => //what will be shown from the item
-                                  <TouchableOpacity onPress={() => {props.navigation.navigate('Profile',{profileDetails: manDetails.item} )}}>
-                                  <View style={{backgroundColor:'fff',
-                                  width:'100%',
-                                  padding:22,
-                                  marginBottom:10,
-                                  borderRadius:10}}>
-                                    <Text>{manDetails.item.name}</Text>
-                                  </View>
-                    </TouchableOpacity>
-                }/>
-        </View>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <Modal // modal build
+                animationType="slide"
+                transparent={true}
+                visible={modalVisibleInputsBlanks}
+                onRequestClose={() => {
+                    setModalVisibleInputBlanks(!modalVisibleInputsBlanks);
+                }}
+              >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <Text style={styles.modalText}>check if all inputs are not blank</Text>
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => setModalVisibleInputBlanks(!modalVisibleInputsBlanks)}
+                    >
+                      <Text style={styles.textStyle}>Close</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </Modal>
+              {/*  diffrent modals for diffrent text inputs */}
+              <Modal // modal build
+                animationType="slide"
+                transparent={true}
+                visible={modalVisibleAlreadyExist}
+                onRequestClose={() => {
+                  setModalVisibleAlreadyExist(!modalVisibleAlreadyExist);
+                }}
+              >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <Text style={styles.modalText}>Username already exist </Text>
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => setModalVisibleAlreadyExist(!modalVisibleAlreadyExist)}
+                    >
+                      <Text style={styles.textStyle}>Close</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </Modal>
+
+                {/*  diffrent modals for diffrent text inputs */}
+                <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisibleSuccess}
+                onRequestClose={() => {
+                  setModalVisibleSuccess(!modalVisibleSuccess);
+                }}
+              >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <Text style={styles.modalText}>Hello {username} </Text>
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => setModalVisibleSuccess(!modalVisibleSuccess)}
+                    >
+                      <Text style={styles.textStyle}>Close</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </Modal>
 
         </View>
        
@@ -39,28 +226,96 @@ const Register = (props) => {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#30E4DE',
+    btn: {
+        width: '100%',
+        marginTop: 12,
         alignItems: 'center',
-        justifyContent: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 20,
+        borderRadius: 30,
+        backgroundColor: '#F7567C',
       },
-      buttonStyle: {
-          flex: 0.3,
-          color: 'red',
-          backgroundColor:'#4343F6',
-          alignItems:'center',
-          justifyContent: 'center',
-          fontWeight: 'Bold',
-          fontSize: 30,
+      btnSecondery: {
+        width: '100%',
+        marginTop: 12,
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 20,
+        borderRadius: 30,
+        backgroundColor: '#8DCEEF',
+      },
+      context: {
+        textAlign: 'center',
+        fontSize: 18,
+        color: '#000000',
+        fontWeight: '400',
       },
       title: {
-          flex: 0.3,
-          color: 'blue',
-          alignItems:'center',
-          justifyContent: 'center',
-          fontWeight: 'Bold',
-          fontSize: 30,
+        fontSize: 28,
+        color: '#2F4F4F',
+        fontWeight: '800',
+      },
+      btnText: {
+        fontSize: 18,
+        color: '#000000',
+        fontWeight: '700',
+      },
+      input: {
+        marginBottom: 20,
+        width: '100%',
+        paddingVertical: 20,
+        borderRadius: 30,
+        paddingHorizontal: 20,
+        fontSize: 18,
+        backgroundColor: '#FCFCFC',
+      },
+      container: {
+        flex: 1,
+        backgroundColor: '#EEE8AA',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 30,
+      },
+      centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
+      },
+      modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+      },
+      button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2
+      },
+      buttonOpen: {
+        backgroundColor: "#F194FF",
+      },
+      buttonClose: {
+        backgroundColor: "#2196F3",
+      },
+      textStyle: {
+        color: "black",
+        fontWeight: "bold",
+        textAlign: "center"
+      },
+      modalText: {
+        marginBottom: 15,
+        textAlign: "center"
       },
 });
 

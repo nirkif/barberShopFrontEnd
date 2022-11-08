@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import reactDom from 'react-dom';
-import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet } from 'react-native';
+import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 //import { AsyncStorage } from 'react-native';
 // props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף ובנוסף מכיל הרבה ספריות של REACT NATIVE
@@ -10,6 +10,8 @@ const Entry = (props) => {
     const [password,setPassword] = useState('');
     const [allusers,setAllusers] = useState([]);
     const [isCorrect,setIsCorrect] = useState(false);
+    const [modalVisible,setModalVisible] = useState(false)
+    const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false)
     useEffect( ()=> {
       //setIsCorrect(false);
       setAllusers(false);
@@ -28,7 +30,7 @@ const Entry = (props) => {
     .catch((error) =>{
         console.error(error);
     })},[])
-
+    console.log(allusers)
     useEffect( ()=> {
 
       if(isCorrect){
@@ -38,6 +40,9 @@ const Entry = (props) => {
         setIsCorrect(false);
         props.navigation.navigate('Home', {username : redirectedUsername })
 
+      }
+      else if(isCorrect == false && username != ''){
+        setModalVisible(true);
       }
     }, [isCorrect])
 
@@ -59,44 +64,39 @@ const Entry = (props) => {
           })
         }).then((response) => response.json())
         .then((responseJson) => {
-          console.log("responseJson: "+responseJson);
           setIsCorrect(responseJson)
-          console.log("isCorrect: "+isCorrect);
+          // if(isCorrect == false)
+          // {
+          //   setModalVisible(!modalVisible)
+          // }
         })}
       catch(err) { console.error(err);}
     }
 // ***************************************************************************
 
     const login  = () => {
-      console.log("starting login function");
-      //console.log(JSON.stringify(props)+"\n\n\n")
-      console.log("comparing: "+username+" and "+password+"are not blank");
         if(username != '' && password != '')
         {
-          console.log("foreach on allusers:");
             allusers.forEach(user => {
-              console.log("comparing: "+user.username+"(user in allusers) and "+username+"(username read from input)");
               if(user.username == username)
               {
-                console.log("(user.username == username) = true");
                 try{              
-                  passwordCheck() 
+                  passwordCheck()
+                  setModalVisibleSuccess(!modalVisibleSuccess) 
                 }
                 catch(err)
                 {
-                  console.log("ERROR:");
                   console.error(err)
                 }
-
               }
               else
               {
-                console.log("account not found");
+                //setModalVisible(true);
+                setPassword('');
               }
             });
         }
-        else { Alert.alert('username or password cannot be blank.')}
-        console.log("________________________________________________")
+        else {setModalVisible(true)}
     }
 // ***************************************************************************
 
@@ -126,6 +126,7 @@ const Entry = (props) => {
             Password
             </Text>
             <TextInput
+            secureTextEntry={true}
             style={styles.input}
             keyboardType="default"
             value={password}
@@ -142,21 +143,50 @@ const Entry = (props) => {
                 <Text>Register to Site</Text>
             </TouchableOpacity>
             <View>
+{/* *********************************************************************************************************** */}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                  setModalVisible(!modalVisible);
+                }}
+              >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <Text style={styles.modalText}>username or password are incorrect</Text>
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => setModalVisible(!modalVisible)}
+                    >
+                      <Text style={styles.textStyle}>Close</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </Modal>
 
-            {/* <FlatList
-                    data={allusers}//which data to use
-                    keyExtractor={user => user.username}//unique id for the item
-                    renderItem={userDetails => //what will be shown from the item
-                                  <View style={{
-                                  
-                                  backgroundColor:'fff',
-                                  width:'100%',
-                                  padding:22,
-                                  marginBottom:10,
-                                  borderRadius:10}}>
-                                    <Text>{userDetails.item.username}</Text>
-                                  </View>
-                }/> */}
+{/* *********************************************************************************************************** */}
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisibleSuccess}
+                onRequestClose={() => {
+                  setModalVisibleSuccess(!modalVisibleSuccess);
+                }}
+              >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <Text style={styles.modalText}>Success</Text>
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => setModalVisibleSuccess(!modalVisibleSuccess)}
+                    >
+                      <Text style={styles.textStyle}>Close</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </Modal>
+
 
             </View>
 
@@ -205,6 +235,47 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 30,
+      },
+      centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
+      },
+      modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+      },
+      button: {
+        borderRadius: 20,
+        padding: 10,
+        elevation: 2
+      },
+      buttonOpen: {
+        backgroundColor: "#F194FF",
+      },
+      buttonClose: {
+        backgroundColor: "#2196F3",
+      },
+      textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+      },
+      modalText: {
+        marginBottom: 15,
+        textAlign: "center"
       },
 });
 
