@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './screens/Home';
 import EntryScreen from './screens/Entry';
 import RegisterScreen from './screens/Register';
-import ProfileScreen from './screens/Profile';
+import BarberOpeningsScreen from './screens/BarberOpenings';
 
 
 const StonkNavigator = createStackNavigator(); 
@@ -15,7 +15,7 @@ export const Navigation = () => {
             <StonkNavigator.Screen name='Entry'component={EntryScreen}/>
             <StonkNavigator.Screen name='Home' component={HomeScreen}/>
             <StonkNavigator.Screen name='Register' component={RegisterScreen}/>
-            <StonkNavigator.Screen name='Profile' component={ProfileScreen}/>
+            <StonkNavigator.Screen name='barberOpenings' component={BarberOpeningsScreen}/>
         </StonkNavigator.Navigator>
     )
 }

@@ -15,7 +15,7 @@ const Entry = (props) => {
     useEffect( ()=> {
       //setIsCorrect(false);
       setAllusers(false);
-      const allusers = fetch('http://localhost:5988/allUsers',{
+          fetch('http://localhost:5988/allUsers',{ // removed allusers = 
           method: 'GET',// denpends upon your call POST or GET
           headers: {
             Accept: 'application/json',
@@ -30,7 +30,6 @@ const Entry = (props) => {
     .catch((error) =>{
         console.error(error);
     })},[])
-    console.log(allusers)
     useEffect( ()=> {
 
       if(isCorrect){
