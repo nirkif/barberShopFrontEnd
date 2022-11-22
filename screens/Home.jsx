@@ -206,27 +206,27 @@ const deleteBooking = () => {
   }
    
     return(
-        <View style={styles.container}>
+        <View style={{height:'100%',marginHorizontal:'auto',borderStyle:'solid',borderColor:'green',borderWidth:2,flex:1,width:'100%',backgroundColor:'#6F8992'}}>
             <View>
             
             <Text style={styles.context}>Hello {props.route.params.username}</Text>
 
             <Text style={styles.context}>new openings</Text>
             </View>
-            <View style={styles.backgroundColor}>
-            <FlatList    //  flatList to show all barbers
+            <View style={{height:'20%',borderStyle:'solid',borderColor:'black',borderWidth:2,flex:1,width:'80%',backgroundColor:'#6F8992'}}>
+            <FlatList    //  flatList to show all barbers 
             data={barberList}//which data to use
+            horizontal={true}
             renderItem= {barber => //what will be shown from the item
-                        <View style={styles.btn}>
-                        <Text style={styles.btnText}>{barber.item.name}</Text>
+                        <View style={{height:'100',marginRight:'15px',flex:0.4,width:'500px',flexDirection:'column',alignContent:'center'}}>
+                        <Text style={{color:'red',fontStyle:'italic',fontSize:'50px',marginHorizontal:'auto',marginVertical:'auto'}}>{barber.item.name}</Text>
                         <FlatList // flatlist to show opening details
                         data={openings}//which data to use
                         renderItem= {opening => //what will be shown from the item
-                                      <View style={styles.btnSecondery}>
-                                        <TouchableOpacity onPress={()=>setOpeningId(opening.item.id)+setBarberUserName(opening.item.barberUserName)+getOpening()}>
-                                        <Text style={styles.btnText}>{opening.item.openingInfo}</Text>
+                                      // <View style={{height:'100%',marginHorizontal:'auto',borderStyle:'solid',borderColor:'red',borderWidth:2,flexDirection:'column'}}>
+                                        <TouchableOpacity onPress={()=>setOpeningId(opening.item.id)+setBarberUserName(opening.item.barberUserName)+getOpening()} style={styles.myButtonContainer}>
+                                        <Text style={{color:'black',fontStyle:'italic',fontSize:'30px',marginHorizontal:'auto',marginVertical:'auto'}}>{opening.item.openingInfo}</Text>
                                         </TouchableOpacity>
-                                      </View>
                                     }
                         keyExtractor={opening => opening.id}//unique id for the item
                         />
@@ -378,49 +378,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 20,
         borderRadius: 30,
+        borderStyle:'solid',
+        borderColor:'blue',
         backgroundColor: '#F7567C',
-      },
-      btnSecondery: {
-        width: '100%',
-        marginTop: 12,
-        alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingVertical: 20,
-        borderRadius: 30,
-        backgroundColor: '#8DCEEF',
-      },
-      context: {
-        textAlign: 'center',
-        fontSize: 18,
-        color: '#000000',
-        fontWeight: '400',
-      },
-      title: {
-        fontSize: 28,
-        color: '#2F4F4F',
-        fontWeight: '800',
-      },
-      btnText: {
-        fontSize: 18,
-        color: '#000000',
-        fontWeight: '700',
-      },
-      input: {
-        marginTop: 20,
-        width: '100%',
-        paddingVertical: 20,
-        borderRadius: 30,
-        paddingHorizontal: 20,
-        fontSize: 18,
-        backgroundColor: '#FCFCFC',
-      },
-      container: {
-        flex: 1,
-        backgroundColor: '#EEE8AA',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection:'row',
-        padding: 30,
+        borderWidth:'2'
       },
       centeredView: {
         flex: 1,
@@ -463,6 +424,39 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         textAlign: "center"
       },
+      myButtonContainer: {
+        elevation: 8,
+        backgroundColor: "#ABC0C7",
+        borderRadius: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderStyle:'solid',
+        opacity:'70%',
+        borderWidth:2,
+        marginBottom:'10px',
+        flexDirection:'column'
+        
+      },
+      myButtonContainerV2: {
+        elevation: 8,
+        backgroundColor: "#ABC0C7",
+        borderRadius: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderStyle:'solid',
+        opacity:'70%',
+        borderWidth:2,
+        marginBottom:'10px',
+        flexDirection:'column',
+        marginLeft:'50px'
+      },
+      myButtonText: {
+        fontSize: 18,
+        color: "#fff",
+        fontWeight: "bold",
+        alignSelf: "center",
+        textTransform: "uppercase"
+      }
 });
 
 export default Home;
