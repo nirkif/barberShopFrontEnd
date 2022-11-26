@@ -67,7 +67,6 @@ const Home = (props) => {
 //       console.error("did not find username in the function findByUserName");
 // }},[])
 
-
     ////////////////////////////////////////////////////////////////////////////////////
   const fetchUser = async() => {
     await fetch('http://localhost:5988/findByUserName/'+props.route.params.username,{
@@ -166,7 +165,24 @@ const deleteBooking = () => {
  /////////////////////////////////////////////////////////////////////////////////////////
  const getBarberOpenings = async() => {
   try{
+    console.log("getting barber openings: ",barberToGet)
     const data = await fetch('http://localhost:5988/getAvailableOpenings/'+barberToGet,{
+      method: 'GET',
+      headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin':'*'
+        }
+      });
+      const myRequestedBarberOpenings = await data.json();
+      setOpenings(myRequestedBarberOpenings);
+  }catch{console.error('error fetching barbers openings');}
+ }
+
+ const getBarberOpeningsv2 = async(username) => {
+  try{
+    console.log("getting barber openings: ",barberToGet)
+    const data = await fetch('http://localhost:5988/getAvailableOpenings/'+username,{
       method: 'GET',
       headers: {
       Accept: 'application/json',
@@ -235,7 +251,7 @@ const deleteBooking = () => {
             horizontal={true}
             renderItem= {barber => //what will be shown from the item
                         <View style={{height:'100',marginRight:'15px',flex:0.4,width:'500px',flexDirection:'column',alignContent:'center'}}>
-                          <TouchableOpacity onPress={()=>{setBarberToGet(barber.item.username)+setModalVisibleOpenings(!modalVisibleOpenings)}}>
+                          <TouchableOpacity onPress={()=>{setBarberToGet(barber.item.username);setModalVisibleOpenings(!modalVisibleOpenings);getBarberOpeningsv2(barber.item.username)}}>
                         <Text style={{color:'red',fontStyle:'italic',fontSize:'50px',marginHorizontal:'auto',marginVertical:'auto'}}>{barber.item.name}</Text>
                         </TouchableOpacity>
                         </View>
@@ -243,13 +259,13 @@ const deleteBooking = () => {
             keyExtractor={opening => opening.id}//unique id for the item
             />
             </View >
-            <View style={{height:'10%',borderStyle:'solid',borderColor:'black',borderWidth:2,flex:0.2,width:'80%',backgroundColor:'#6F8992'}}>
+            <View style={{height:'50%',borderStyle:'solid',borderColor:'black',borderWidth:2,width:'80%',backgroundColor:'#6F8992'}}>
             <Text>My Bookings</Text>
             <FlatList // flatlist to show booking details
                         data={myBookings}//which data to use
                         renderItem= {booking => //what will be shown from the item
                                         <View style={{borderStyle:'solid',borderColor:'black',borderWidth:2,backgroundColor:'#6F8992'}}>
-                                        <TouchableOpacity onPress={()=>setBookingId(booking.item.id)+setOpeningInfo(booking.item.openingInfo)}>
+                                        <TouchableOpacity onPress={()=>setBookingId(booking.item.id)+setOpeningInfo(booking.item.openingInfo)+setModalVisibleDelete(!modalVisibileDelete)}>
                                         <Text style={styles.myButtonText}>{booking.item.openingInfo}</Text>
                                         <Text style={styles.myButtonText}>{booking.item.barberUsername}</Text>
                                         
@@ -259,13 +275,13 @@ const deleteBooking = () => {
                                     }
                         keyExtractor={booking => booking.id}//unique id for the item
                         /> 
-                        <TouchableOpacity onPress={()=>{setModalVisibleDelete(!modalVisibileDelete)}}><Text style={styles.btn}>Delete Booking</Text></TouchableOpacity>
+
+            </View>
+            
+            {/* <TouchableOpacity onPress={()=>{}}><Text style={styles.btn}>Delete Booking</Text></TouchableOpacity> */}
             <View style={styles.btn}>          
               {isBarber()}
             </View>
-            </View>
-            
-            
 
 
             <Modal

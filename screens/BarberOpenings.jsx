@@ -31,11 +31,42 @@ const BarberOpenings = (props) => {
 
     //       })
 
-          useEffect(() => {
-            fetchMyOpenings();
-            getUpcomingWeekDays();
-            console.log(getUpcomingWeekDays());
-          },[]);
+    useEffect(() => {
+      fetchMyOpenings();
+      // getUpcomingWeekDays();
+      console.log(getUpcomingWeekDays());
+    },[]);
+
+
+    useEffect(() => {
+      console.log(month, dayOfMonth);
+      if(month && dayOfMonth){
+        setModalVisible(!modalVisible)
+      }
+    },[month, dayOfMonth]);
+
+    useEffect(() => {
+      if(myOpenings){
+        const newDays = getUpcomingWeekDays().filter((dayInWeek)=>{
+          var day = dayInWeek.split("-")[0];
+          if(day.length < 2){
+            day = "0"+day;
+          }
+          var month = dayInWeek.split("-")[1];
+          for( var i = 0 ; i < myOpenings.length; i++){
+
+            if(myOpenings[i].openingInfo.includes(`${month}-${day}`)){
+              console.log("this button is going off: ", `${month}-${day}`)
+              return false;
+            }
+          }
+          console.log("this button is staying: ", `${month}-${day}`)
+          return true;
+        });
+        setDaysOfWeek(newDays);
+      }
+      
+    },[myOpenings]);
 
     const fetchMyOpenings = async () => {
       setLoading(true)
@@ -63,14 +94,14 @@ const BarberOpenings = (props) => {
       var formatedDate;
       var today = new Date();
       day = today.getDate();
-      month = today.getMonth();
+      month = today.getMonth() + 1;
       year = today.getFullYear();
       formatedDate = `${day}-${month}-${year}`;
       ans.push(formatedDate)
       for(var i = 1 ; i < 7 ; i++){
         var currDate = new Date(today.getTime() + i * 24 * 60 * 60 * 1000)
         day = currDate.getDate();
-        month = currDate.getMonth();
+        month = currDate.getMonth() + 1;
         year = currDate.getFullYear();
         formatedDate = `${day}-${month}-${year}`;
 
@@ -108,7 +139,8 @@ const BarberOpenings = (props) => {
     }
     const createDay = async() => {
       try{
-        await fetch('http://localhost:5988/addOpenings/',{
+        console.log("sending request with month: ", month, "dayInMonth: ", dayOfMonth)
+        await fetch('http://localhost:5988/addOpeningsV2/',{
           method: 'POST',
           headers: {
           Accept: 'application/json',
@@ -128,6 +160,7 @@ const BarberOpenings = (props) => {
       }
       catch(err){console.error("error creating day");}
     }
+  
 
     
   const addOpening = () => {
@@ -184,12 +217,14 @@ const BarberOpenings = (props) => {
                         
                         data={daysOfWeek}//which data to use
                         horizontal={true}
-                        renderItem= {newOpening => //what will be shown from the item
+                        renderItem= {newOpening=> //what will be shown from the item
                             <TouchableOpacity onPress={() => {
-                              setMonth(newOpening.item.substring(3,5))
-                              setDayOfMonth(newOpening.item.substring(0,2))
+                              console.log("new opening.item: ", newOpening.item)
+                              setMonth(newOpening.item.split("-")[1])
+                              setDayOfMonth(newOpening.item.split("-")[0])
                               console.log("month: ",month,"\nday: ",dayOfMonth)
-                              setModalVisible(!modalVisible)}
+                              //setModalVisible(!modalVisible)
+                            }
                               } style={{borderStyle:'solid',borderColor:'black',borderRadius:12,borderWidth:3,height:90,margin:10}}>
                             <Text style={styles.myButtonText}>{newOpening.item}</Text>
                             <Text style={styles.myButtonText}>9 - 17</Text>
@@ -211,6 +246,7 @@ const BarberOpenings = (props) => {
 
 
             <Modal
+                
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
