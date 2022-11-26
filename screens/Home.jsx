@@ -26,6 +26,8 @@ const Home = (props) => {
     const [allOpeningsObjects, setallOpeningsObjects] = useState([])
     const [openingInfo,setOpeningInfo] = useState([])
     const [bookingId,setBookingId] = useState('')
+    const [barberToGet,setBarberToGet] = useState('')
+    const [modalVisibleOpenings,setModalVisibleOpenings] = useState(false)
 
     //  console.log("props: "+JSON.stringify(props))
     //  console.log("barberList: "+JSON.stringify(barberList))
@@ -46,23 +48,24 @@ const Home = (props) => {
       .then((response) => response.json())
       .then((responseJson) => {
          setBarberList(responseJson)
-         })},[])
+         }).then(fetchAvailableOpenings()).then(getMyBooking()).then(allOpenings()).then(fetchUser())},[])
+         console.log(myBookings);
       //////////////////////////////////////////////
-      useEffect( ()=> {
-        fetchAvailableOpenings()
-        getMyBooking()
-        allOpenings()
-        },[])
+      // useEffect( ()=> {
+      //   fetchAvailableOpenings()
+      //   getMyBooking()
+      //   allOpenings()
+      //   },[])
       
 
     ////////////////////////////////////////////////////////////////////////////////////
-  useEffect( async()=> {
-    try{
-      fetchUser()
-  }catch(err) {
-      console.error("ERROR: ",err);
-      console.error("did not find username in the function findByUserName");
-}},[])
+//   useEffect( async()=> {
+//     try{
+//       fetchUser()
+//   }catch(err) {
+//       console.error("ERROR: ",err);
+//       console.error("did not find username in the function findByUserName");
+// }},[])
 
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -144,24 +147,37 @@ const deleteBooking = () => {
   }
       ////////////////////////////////////////////////////////////////////////////////////
  const getMyBooking = async() => {
-  try{
-    const data = await fetch('http://localhost:5988/getMyBooking/'+props.route.params.username,{
-                  method: 'GET',
-                  headers: {
-                  Accept: 'application/json',
-                  'Content-Type': 'application/json',
-                  'Access-Control-Allow-Origin':'*'
-                    }
-                  });
-    const myRequestedBookings = await data.json();
-    console.log('dataJSON: ',myRequestedBookings);
-    console.log(myRequestedBookings)
-    setMyBookings(myRequestedBookings)
-    console.log("JOBS DONE");
-  }
-  catch{console.error('could not get booking :(');}
+  console.log('fetching mybooking');
+    try{
+      const data = await fetch('http://localhost:5988/getMyBooking/'+props.route.params.username,{
+                    method: 'GET',
+                    headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin':'*'
+                      }
+                    })
+      const myRequestedBookings = await data.json();
+      setMyBookings(myRequestedBookings)
+      console.log("JOBS DONE" + myRequestedBookings);
+    }
+    catch{console.error('could not get booking :(');}
  }
  /////////////////////////////////////////////////////////////////////////////////////////
+ const getBarberOpenings = async() => {
+  try{
+    const data = await fetch('http://localhost:5988/getAvailableOpenings/'+barberToGet,{
+      method: 'GET',
+      headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin':'*'
+        }
+      });
+      const myRequestedBarberOpenings = await data.json();
+      setOpenings(myRequestedBarberOpenings);
+  }catch{console.error('error fetching barbers openings');}
+ }
  /////////////////////////////////////////////////////////////////////////////////////////
  const allOpenings = async() => {
   try{
@@ -219,32 +235,23 @@ const deleteBooking = () => {
             horizontal={true}
             renderItem= {barber => //what will be shown from the item
                         <View style={{height:'100',marginRight:'15px',flex:0.4,width:'500px',flexDirection:'column',alignContent:'center'}}>
+                          <TouchableOpacity onPress={()=>{setBarberToGet(barber.item.username)+setModalVisibleOpenings(!modalVisibleOpenings)}}>
                         <Text style={{color:'red',fontStyle:'italic',fontSize:'50px',marginHorizontal:'auto',marginVertical:'auto'}}>{barber.item.name}</Text>
-                        <FlatList // flatlist to show opening details
-                        data={openings}//which data to use
-                        renderItem= {opening => //what will be shown from the item
-                                      // <View style={{height:'100%',marginHorizontal:'auto',borderStyle:'solid',borderColor:'red',borderWidth:2,flexDirection:'column'}}>
-                                        <TouchableOpacity onPress={()=>setOpeningId(opening.item.id)+setBarberUserName(opening.item.barberUserName)+getOpening()} style={styles.myButtonContainer}>
-                                        <Text style={{color:'black',fontStyle:'italic',fontSize:'30px',marginHorizontal:'auto',marginVertical:'auto'}}>{opening.item.openingInfo}</Text>
-                                        </TouchableOpacity>
-                                    }
-                        keyExtractor={opening => opening.id}//unique id for the item
-                        />
+                        </TouchableOpacity>
                         </View>
             }
             keyExtractor={opening => opening.id}//unique id for the item
             />
             </View >
-            <View style={styles.container}>
+            <View style={{height:'10%',borderStyle:'solid',borderColor:'black',borderWidth:2,flex:0.2,width:'80%',backgroundColor:'#6F8992'}}>
             <Text>My Bookings</Text>
             <FlatList // flatlist to show booking details
                         data={myBookings}//which data to use
                         renderItem= {booking => //what will be shown from the item
-
-                                        <View style={styles.btn}>
+                                        <View style={{borderStyle:'solid',borderColor:'black',borderWidth:2,backgroundColor:'#6F8992'}}>
                                         <TouchableOpacity onPress={()=>setBookingId(booking.item.id)+setOpeningInfo(booking.item.openingInfo)}>
-                                        <Text style={styles.btnText}>{booking.item.openingInfo}</Text>
-                                        <Text style={styles.btnText}>{booking.item.barberUsername}</Text>
+                                        <Text style={styles.myButtonText}>{booking.item.openingInfo}</Text>
+                                        <Text style={styles.myButtonText}>{booking.item.barberUsername}</Text>
                                         
                                         </TouchableOpacity>
                                         </View>
@@ -252,18 +259,13 @@ const deleteBooking = () => {
                                     }
                         keyExtractor={booking => booking.id}//unique id for the item
                         /> 
-                        
-            </View>
-            <TouchableOpacity onPress={()=>{setModalVisibleDelete(!modalVisibileDelete)}}><Text style={styles.btn}>Delete Booking</Text></TouchableOpacity>
-            <View >          
+                        <TouchableOpacity onPress={()=>{setModalVisibleDelete(!modalVisibileDelete)}}><Text style={styles.btn}>Delete Booking</Text></TouchableOpacity>
+            <View style={styles.btn}>          
               {isBarber()}
             </View>
+            </View>
             
-
-
-
-
-
+            
 
 
             <Modal
@@ -297,7 +299,31 @@ const deleteBooking = () => {
               </Modal>
 
 
-
+              <Modal animationType="slide"
+                transparent={true}
+                visible={modalVisibleOpenings}
+                onRequestClose={() => {
+                  setModalVisibleOpenings(!modalVisibleOpenings);
+                }}
+              >
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => setModalVisibleOpenings(!modalVisibleOpenings)}
+                    >
+                      <Text style={styles.textStyle}>Close</Text>
+                    </Pressable>
+              <FlatList // flatlist to show available openings
+                        data={openings}//which data to use
+                        renderItem= {opening => //what will be shown from the item
+                                      // <View style={{height:'100%',marginHorizontal:'auto',borderStyle:'solid',borderColor:'red',borderWidth:2,flexDirection:'column'}}>
+                                        <TouchableOpacity onPress={()=>setOpeningId(opening.item.id)+setBarberUserName(opening.item.barberUserName)+setModalVisible(!modalVisible)+getBarberOpenings()} style={styles.myButtonContainer}>
+                                        <Text style={{color:'black',fontStyle:'italic',fontSize:'30px',marginHorizontal:'auto',marginVertical:'auto'}}>{opening.item.openingInfo}</Text>
+                                        </TouchableOpacity>
+                                    }
+                        keyExtractor={opening => opening.id}//unique id for the item
+                        />
+                        
+              </Modal>
 
 
 
@@ -364,6 +390,29 @@ const deleteBooking = () => {
                 </View>
               </Modal>
 
+
+
+
+              <Modal  // modal to show openings for the barber requested
+                animationType="slide"
+                transparent={true}
+                visible={modalVisibleSuccess}
+                onRequestClose={() => {
+                  setModalVisibleSuccess(!modalVisibleSuccess);
+                }}
+              >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <Text style={styles.modalText}>Success</Text>
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => setModalVisibleSuccess(!modalVisibleSuccess)}
+                    >
+                      <Text style={styles.textStyle}>Close</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </Modal>
 
         </View>
     )

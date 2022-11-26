@@ -154,8 +154,8 @@ const BarberOpenings = (props) => {
 
     return(
         <View style={styles.container}>
-           <Text style={styles.textStyle}>My Openings</Text>
             <View style = {styles.row}> 
+            <Text style={styles.myButtonText}>My Openings</Text>
                   <FlatList // flatlist to show opening details // blue view that contains my openings
                          contentContainerStyle={{alignSelf: 'flex-start'}}
                          numColumns={4}
@@ -166,39 +166,39 @@ const BarberOpenings = (props) => {
                          //showsHorizontalScrollIndicator={false}
                         data={myOpenings}//which data to use
                         renderItem= {opening => //what will be shown from the item
-                        <View style={styles.btn}>
+                        <View style={styles.myButtonContainerV2}>
                         <TouchableOpacity onPress={()=>setOpeningId(opening.item.id)+console.log(opening.item.id)}>
 
-                            <Text style={styles.btnText}>{opening.item.openingInfo}</Text>
+                            <Text style={styles.myButtonText}>{opening.item.openingInfo}</Text>
 
                         </TouchableOpacity>
                         </View>                     
                                     }
                         keyExtractor={opening => opening.id}//unique id for the item
                         />  
+            <TouchableOpacity onPress={deleteOpening} style={styles.myButtonContainerV2}><Text style = {styles.myButtonText}>Delete opening</Text></TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={deleteOpening}><Text style = {styles.textStyle}>Delete opening</Text></TouchableOpacity>
-            <View style={styles.row}>
+            <View style={styles.row2}>
+              <Text style={styles.myButtonText}>Shifts maker</Text>
             <FlatList // dates of upcoming week to create day of work
                         
                         data={daysOfWeek}//which data to use
                         horizontal={true}
                         renderItem= {newOpening => //what will be shown from the item
-                          <View style={styles.btn}>
                             <TouchableOpacity onPress={() => {
                               setMonth(newOpening.item.substring(3,5))
                               setDayOfMonth(newOpening.item.substring(0,2))
                               console.log("month: ",month,"\nday: ",dayOfMonth)
                               setModalVisible(!modalVisible)}
-                              }>
-                            <Text style={styles.btnText}>{newOpening.item}</Text>
-                            <Text style={styles.btnText}>day: {newOpening.item.substring(0,2)}</Text>
-                            <Text style={styles.btnText}>month: {newOpening.item.substring(3,5)}</Text>
-                            </TouchableOpacity>
-                          </View>}
+                              } style={{borderStyle:'solid',borderColor:'black',borderRadius:12,borderWidth:3,height:90,margin:10}}>
+                            <Text style={styles.myButtonText}>{newOpening.item}</Text>
+                            <Text style={styles.myButtonText}>9 - 17</Text>
+                            <Text style={styles.myButtonText}>Create shift</Text>
+                            </TouchableOpacity>}
                         keyExtractor={(index) => index.toString()}//unique id for the item
                         />  
-            </View>
+            </View>                        
+
 
 
 
@@ -283,7 +283,15 @@ const styles = StyleSheet.create({
         width: '50%',
         backgroundColor: '#B0E0E6',
         borderRadius: 12,
+        marginBottom:20,
         flex:0.5
+      },
+      row2: {
+        height: '10%',
+        width: '58%',
+        backgroundColor: '#B0E0E6',
+        borderRadius: 12,
+        flex:0.3
       },
       btnSecondery: {
         width: '100%',
@@ -319,12 +327,32 @@ const styles = StyleSheet.create({
         fontSize: 18,
         backgroundColor: '#FCFCFC',
       },
+
+      myButtonContainerV2: {
+        elevation: 8,
+        backgroundColor: "#ABC0C7",
+        borderRadius: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderStyle:'solid',
+        opacity:'70%',
+        borderWidth:2,
+        marginBottom:'10px',
+        flexDirection:'column',
+        marginLeft:'10px'
+      },
+      myButtonText: {
+        fontSize: 18,
+        color: "#02468A",
+        fontWeight: "bold",
+        alignSelf: "center",
+        textTransform: "uppercase"
+      },
       container: {
         flex: 1,
         backgroundColor: '#EEE8AA',
         alignItems: 'center',
         justifyContent: 'center',
-        flexDirection:'row',
         padding: 30,
       },
       centeredView: {
@@ -371,6 +399,8 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         textAlign: "center"
       },
+
+
 });
 
 export default BarberOpenings;

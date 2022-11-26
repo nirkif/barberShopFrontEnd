@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import reactDom from 'react-dom';
-import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable } from 'react-native';
+import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,ImageBackground } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 //import { AsyncStorage } from 'react-native';
 // props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף ובנוסף מכיל הרבה ספריות של REACT NATIVE
@@ -12,6 +12,7 @@ const Entry = (props) => {
     const [isCorrect,setIsCorrect] = useState(false);
     const [modalVisible,setModalVisible] = useState(false)
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false)
+    const image = { uri : "https://www.maxim.com/wp-content/uploads/2021/05/barbershops-2-scaled.jpg" }
     useEffect( ()=> {
       //setIsCorrect(false);
       setAllusers(false);
@@ -103,15 +104,17 @@ const Entry = (props) => {
 
     
     return(
-        <View style={styles.container}>
-            <Text style={styles.title}>Welcome to</Text>
-            <Text style={styles.title}>BarberBook</Text>
+      <View style={{flex:1}}>
+      <ImageBackground source={image} resizeMode="cover" style={{flex:1,justifyContent:"center"}}>
+        
+            <Text style={{fontStyle:'italic',fontSize:50,alignSelf:'center',color:'#2968C7',fontWeight:'bold',textShadowColor:'black',textShadowOffset:{width:0,height:12},shadowOpacity:0.58,elevation:24}}>Welcome to</Text>
+            <Text style={{fontStyle:'italic',fontSize:50,alignSelf:'center',color:'#2968C7',fontWeight:'bold',textShadowColor:'black',textShadowOffset:{width:0,height:12},shadowOpacity:0.58,elevation:24}}>BarberBook</Text>
 
-            <Text style={styles.context}>
-            Please enter your name and phone number to enter application.
+            <Text style={{fontFamily:'Times New Roman',fontSize:30,alignSelf:'center',color:'#71D21B'}}>
+            Please enter your name and password to continue.
             </Text>
 
-            <Text style={styles.context}>
+            <Text style={{fontFamily:'Times New Roman',fontSize:30,alignSelf:'center',color:'#71D21B',fontWeight:'bold'}}>
             Username
             </Text>
 
@@ -121,7 +124,7 @@ const Entry = (props) => {
             value={username}
             onChangeText={(text) => setUsername(text)}
             />
-            <Text style={styles.context}>
+            <Text style={{fontFamily:'Times New Roman',fontSize:30,alignSelf:'center',color:'#71D21B',fontWeight:'bold'}}>
             Password
             </Text>
             <TextInput
@@ -188,8 +191,9 @@ const Entry = (props) => {
 
 
             </View>
-
+            </ImageBackground>
         </View>
+       
     )
 
 }
