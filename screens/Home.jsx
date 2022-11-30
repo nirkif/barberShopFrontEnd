@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable } from 'react-native';
+import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,Image } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
+import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 
 // props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף
 
@@ -28,6 +29,7 @@ const Home = (props) => {
     const [bookingId,setBookingId] = useState('')
     const [barberToGet,setBarberToGet] = useState('')
     const [modalVisibleOpenings,setModalVisibleOpenings] = useState(false)
+    const [imageUri,setImageUri] = useState('')
 
     //  console.log("props: "+JSON.stringify(props))
     //  console.log("barberList: "+JSON.stringify(barberList))
@@ -50,14 +52,6 @@ const Home = (props) => {
          setBarberList(responseJson)
          }).then(fetchAvailableOpenings()).then(getMyBooking()).then(allOpenings()).then(fetchUser())},[])
          console.log(myBookings);
-      //////////////////////////////////////////////
-      // useEffect( ()=> {
-      //   fetchAvailableOpenings()
-      //   getMyBooking()
-      //   allOpenings()
-      //   },[])
-      
-
     ////////////////////////////////////////////////////////////////////////////////////
 //   useEffect( async()=> {
 //     try{
@@ -234,9 +228,10 @@ const deleteBooking = () => {
     getMyBooking()
     }
   catch(err) { console.error('catch Error: ',err);}
-
   }
-   
+
+
+
     return(
         <View style={{height:'100%',marginHorizontal:'auto',borderStyle:'solid',borderColor:'green',borderWidth:2,flex:1,width:'100%',backgroundColor:'#6F8992'}}>
             <View>
@@ -245,39 +240,49 @@ const deleteBooking = () => {
 
             <Text style={styles.context}>new openings</Text>
             </View>
-            <View style={{height:'20%',borderStyle:'solid',borderColor:'black',borderWidth:2,flex:1,width:'80%',backgroundColor:'#6F8992'}}>
+            <View style={{height:'35%',borderStyle:'solid',borderColor:'black',borderWidth:2,flex:1,width:'100%',backgroundColor:'#6F8992'}}>
             <FlatList    //  flatList to show all barbers 
             data={barberList}//which data to use
             horizontal={true}
             renderItem= {barber => //what will be shown from the item
-                        <View style={{height:'100',marginRight:'15px',flex:0.4,width:'500px',flexDirection:'column',alignContent:'center'}}>
-                          <TouchableOpacity onPress={()=>{setBarberToGet(barber.item.username);setModalVisibleOpenings(!modalVisibleOpenings);getBarberOpeningsv2(barber.item.username)}}>
-                        <Text style={{color:'red',fontStyle:'italic',fontSize:'50px',marginHorizontal:'auto',marginVertical:'auto'}}>{barber.item.name}</Text>
+                        <View style={{borderColor: '#bcbcbc',borderRadius: 10,width: '100%',padding:15,margin: 5,marginBottom:5,height: 200,borderWidth: 2,}}>
+                          <TouchableOpacity style={{alignItems:'center'}} onPress={()=>{setBarberToGet(barber.item.username);setModalVisibleOpenings(!modalVisibleOpenings);getBarberOpeningsv2(barber.item.username)}}>
+                            <Text  style={{color:'red',fontStyle:'italic',fontSize:'50px',marginHorizontal:'auto',marginVertical:'auto'}}>{barber.item.name}</Text>
+                        <Image
+                        style={styles.tinyLogo}
+                        source={{uri:barber.item.imageuri}}
+                        />
+                        {console.log(barber.item.imageuri)}
                         </TouchableOpacity>
                         </View>
             }
             keyExtractor={opening => opening.id}//unique id for the item
             />
-            </View >
-            <View style={{height:'50%',borderStyle:'solid',borderColor:'black',borderWidth:2,width:'80%',backgroundColor:'#6F8992'}}>
+            </View>
+            <View style={{flexDirection:'row'}}>
+
+            <View style={{height:'100%',borderStyle:'solid',borderColor:'pink',borderWidth:2,width:'80%',backgroundColor:'#6F8992'}}>
             <Text>My Bookings</Text>
             <FlatList // flatlist to show booking details
+                        horizontal={true}
                         data={myBookings}//which data to use
                         renderItem= {booking => //what will be shown from the item
-                                        <View style={{borderStyle:'solid',borderColor:'black',borderWidth:2,backgroundColor:'#6F8992'}}>
+                                        <View style={{borderStyle:'solid',borderColor:'yellow',borderWidth:2,backgroundColor:'#6F8992',margin:15,width:'90%',borderRadius:15}}>
                                         <TouchableOpacity onPress={()=>setBookingId(booking.item.id)+setOpeningInfo(booking.item.openingInfo)+setModalVisibleDelete(!modalVisibileDelete)}>
                                         <Text style={styles.myButtonText}>{booking.item.openingInfo}</Text>
                                         <Text style={styles.myButtonText}>{booking.item.barberUsername}</Text>
                                         
                                         </TouchableOpacity>
+                                        
                                         </View>
-
                                     }
                         keyExtractor={booking => booking.id}//unique id for the item
                         /> 
 
             </View>
+
             
+            </View>
             {/* <TouchableOpacity onPress={()=>{}}><Text style={styles.btn}>Delete Booking</Text></TouchableOpacity> */}
             <View style={styles.btn}>          
               {isBarber()}
@@ -521,7 +526,21 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         alignSelf: "center",
         textTransform: "uppercase"
-      }
+      },
+      tinyLogo: {
+        width: 50,
+        height: 50,
+        padding:35
+      },
+      textWrapper: {
+        borderColor: '#bcbcbc',
+        borderRadius: 10,
+        width: '80%',
+        margin: 16,
+        height: 200,
+        borderWidth: 2,
+      },
+
 });
 
 export default Home;

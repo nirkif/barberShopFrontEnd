@@ -3,7 +3,7 @@ import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable }
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 
 const BarberOpenings = (props) => {
-    
+    const [allUsers,setAllUsers] = useState([]);
     const [myOpenings, setMyOpenings] = useState([]);
     const [daysOfWeek,setDaysOfWeek ] = useState([]);
     const [userObject, setUserObject] = useState({});
@@ -14,9 +14,29 @@ const BarberOpenings = (props) => {
     const [dayOfMonth, setDayOfMonth] = useState('');
     const [modalVisible,setModalVisible] = useState(false);
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false)
+    const [modalVisibleAllUsers,setModalVisibleAllUsers] = useState(false)
+    const [userID,setUserID] = useState('')
+    const [newBarberName,setNewBarberName] = useState('')
+    const [modalVisibleMakeBarber,setModalVisibleMakeBarber] = useState(false)
 
 
-
+    // useEffect( ()=> {
+    //   setAllUsers([]);
+    //       fetch('http://localhost:5988/allUsers',{ 
+    //       method: 'GET',// denpends upon your call POST or GET
+    //       headers: {
+    //         Accept: 'application/json',
+    //         'Content-Type': 'application/json',
+    //         'Access-Control-Allow-Origin':'*'
+    //       }
+    //     })
+    // .then((response_All_Users) => response_All_Users.json())
+    // .then((response_Json_All_Users) => {
+    //   setAllUsers(response_Json_All_Users)
+    // })
+    // .catch((error) =>{
+    //     console.error(error);
+    // })},[])
     // useEffect( () => {
     //         //  fetch('http://localhost:5988/findByUserName/'+props.route.params.username,{
     //         //   method: 'GET',// denpends upon your call POST or GET
@@ -33,6 +53,7 @@ const BarberOpenings = (props) => {
 
     useEffect(() => {
       fetchMyOpenings();
+      fetchAllUsers();
       // getUpcomingWeekDays();
       console.log(getUpcomingWeekDays());
     },[]);
@@ -84,7 +105,20 @@ const BarberOpenings = (props) => {
                     setLoading(false);
                     setMyOpeningsLength(Math.ceil(myOpenings.length / 2))
     }
-
+    const fetchAllUsers = async()=>{
+      setAllUsers([]);
+      fetch('http://localhost:5988/allUsers',{ 
+      method: 'GET',// denpends upon your call POST or GET
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin':'*'
+      }
+    })
+    .then((response_All_Users) => response_All_Users.json())
+    .then((response_Json_All_Users) => {
+      setAllUsers(response_Json_All_Users)
+    })}
 
     const getUpcomingWeekDays = ()=>{
       var ans = [];
@@ -183,6 +217,33 @@ const BarberOpenings = (props) => {
     
   }
 
+  const addBarber = ()=>{
+    try{
+      fetch('http://localhost:5988/addBarberFromUserId', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin':'*'
+      },
+    body: JSON.stringify({
+        id:userID
+      })
+    }).then((response) => response.json())
+    }
+  catch(err) { console.error('cannot add barber from user id');}
+  }
+  const isBarber = () => {
+    if(userObject.classType != 'User')
+    {
+      return  <TouchableOpacity onPress={()=>{console.log(user.item.classType)+setUserID(user.item.id)+setNewBarberName(user.item.username)+setModalVisibleAllUsers(!modalVisibleAllUsers)+setModalVisibleMakeBarber(!modalVisibleMakeBarber)}} style={styles.myButtonContainer}>
+              <Text style={{color:'black',fontStyle:'italic',fontSize:'30px',marginHorizontal:'auto',marginVertical:'auto'}}>{user.item.username}</Text>
+              </TouchableOpacity>
+    }
+    else{
+      return null;
+    }
+  }
 
 
     return(
@@ -232,6 +293,9 @@ const BarberOpenings = (props) => {
                             </TouchableOpacity>}
                         keyExtractor={(index) => index.toString()}//unique id for the item
                         />  
+                        <TouchableOpacity onPress={()=>{ setModalVisibleAllUsers(!modalVisibleAllUsers)} }>
+                          <Text>add Barber</Text>
+                        </TouchableOpacity>
             </View>                        
 
 
@@ -292,6 +356,60 @@ const BarberOpenings = (props) => {
                     </Pressable>
                   </View>
                 </View>
+              </Modal>
+
+{/* ********************************************************************************************* */}
+
+              <Modal
+                animationType="slide"
+                visible={modalVisibleMakeBarber}
+                onRequestClose={() => {
+                  setModalVisibleMakeBarber(!modalVisibleMakeBarber);
+                }}
+              >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <Text style={styles.modalText}>add barber {newBarberName} ?</Text>
+                    <Text style={styles.modalText}>ID:  {userID}</Text>
+                    <TouchableOpacity onPress={ ()=>{ try{setModalVisibleMakeBarber(!modalVisibleMakeBarber)+addBarber()+setModalVisibleSuccess(!modalVisibleSuccess)}catch{console.error('cannot add barber')}}}>
+                      <Text style={styles.textStyle}>Add Barber</Text>
+                    </TouchableOpacity>
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => setModalVisibleMakeBarber(!modalVisibleMakeBarber)}
+                    >
+                      <Text style={styles.textStyle}>Close</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </Modal>
+
+{/* ************************************************************************************************************************ */}
+
+              <Modal animationType="slide"
+                transparent={true}
+                visible={modalVisibleAllUsers}
+                onRequestClose={() => {
+                  setModalVisibleAllUsers(!modalVisibleAllUsers);
+                }}
+              >
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => setModalVisibleAllUsers(!modalVisibleAllUsers)}
+                    >
+                      <Text style={styles.textStyle}>Close</Text>
+                    </Pressable>
+                    <Text style={{color:'blue',fontStyle:'italic',fontSize:'40px'}}>Add Barber</Text>
+                        <FlatList 
+                        data={allUsers}
+                        renderItem = {user =>   
+                        <TouchableOpacity onPress={()=>{console.log(user.item.classType)+setUserID(user.item.id)+setNewBarberName(user.item.username)+setModalVisibleAllUsers(!modalVisibleAllUsers)+setModalVisibleMakeBarber(!modalVisibleMakeBarber)}} style={styles.myButtonContainer}>
+                        <Text style={{color:'black',fontStyle:'italic',fontSize:'30px',marginHorizontal:'auto',marginVertical:'auto'}}>{user.item.username}</Text>
+                        </TouchableOpacity>
+                        }
+                        keyExtractor={user => user.id}
+                        />
+
               </Modal>
 
 
@@ -434,6 +552,19 @@ const styles = StyleSheet.create({
       modalText: {
         marginBottom: 15,
         textAlign: "center"
+      },
+      myButtonContainer: {
+        elevation: 8,
+        backgroundColor: "#ABC0C7",
+        borderRadius: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderStyle:'solid',
+        opacity:'70%',
+        borderWidth:2,
+        marginBottom:'10px',
+        flexDirection:'column'
+        
       },
 
 
