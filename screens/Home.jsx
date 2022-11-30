@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,Image } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 
 // props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף
 
