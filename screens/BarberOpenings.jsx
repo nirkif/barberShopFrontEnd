@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable } from 'react-native';
+import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,Image,ImageBackground } from 'react-native';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 
 const BarberOpenings = (props) => {
@@ -18,6 +18,8 @@ const BarberOpenings = (props) => {
     const [userID,setUserID] = useState('')
     const [newBarberName,setNewBarberName] = useState('')
     const [modalVisibleMakeBarber,setModalVisibleMakeBarber] = useState(false)
+    const [imageURL,setImageURL] = useState('')
+    const [barbersBookings,setBarbersBookings] = useState([])
 
 
     // useEffect( ()=> {
@@ -54,8 +56,9 @@ const BarberOpenings = (props) => {
     useEffect(() => {
       fetchMyOpenings();
       fetchAllUsers();
+      fetchBarbersBookings();
       // getUpcomingWeekDays();
-      console.log(getUpcomingWeekDays());
+      console.log('array of the days (getUpcomingWeekDays Function: )',getUpcomingWeekDays());
     },[]);
 
 
@@ -89,6 +92,11 @@ const BarberOpenings = (props) => {
       
     },[myOpenings]);
 
+    useEffect(()=>{
+      changeImage()
+      
+    },[imageURL])
+
     const fetchMyOpenings = async () => {
       setLoading(true)
       const data = await fetch('http://localhost:5988/getOpenings/'+props.route.params.username,{
@@ -105,6 +113,20 @@ const BarberOpenings = (props) => {
                     setLoading(false);
                     setMyOpeningsLength(Math.ceil(myOpenings.length / 2))
     }
+    const fetchBarbersBookings = async() => {
+      const data = await fetch('http://localhost:5988/getBarberBooking/'+props.route.params.username,{
+        method: 'GET',
+        headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin':'*'
+          }
+        });
+        const myRequestedBarbersBooking = await data.json();
+        setBarbersBookings(myRequestedBarbersBooking)
+    }
+
+
     const fetchAllUsers = async()=>{
       setAllUsers([]);
       fetch('http://localhost:5988/allUsers',{ 
@@ -233,22 +255,36 @@ const BarberOpenings = (props) => {
     }
   catch(err) { console.error('cannot add barber from user id');}
   }
-  const isBarber = () => {
-    if(userObject.classType != 'User')
+  const changeImage = () => {
+    if(imageURL != null && imageURL.length>6)
     {
-      return  <TouchableOpacity onPress={()=>{console.log(user.item.classType)+setUserID(user.item.id)+setNewBarberName(user.item.username)+setModalVisibleAllUsers(!modalVisibleAllUsers)+setModalVisibleMakeBarber(!modalVisibleMakeBarber)}} style={styles.myButtonContainer}>
-              <Text style={{color:'black',fontStyle:'italic',fontSize:'30px',marginHorizontal:'auto',marginVertical:'auto'}}>{user.item.username}</Text>
-              </TouchableOpacity>
-    }
-    else{
-      return null;
+      try{
+        fetch('http://localhost:5988/changeProfilePicture',{
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type':'application/json',
+            'Access-Control-Allow-Origin':'*'
+          },
+          body: JSON.stringify({
+            username: props.route.params.username,
+            imageUri: imageURL
+          })
+        }).then(props.navigation.navigate('Home', {username : props.route.params.username }))
+
+      }
+      catch(err){ console.error('cannot change profile picture: ',err)}
     }
   }
 
 
     return(
-        <View style={styles.container}>
-            <View style = {styles.row}> 
+        <View>
+          <ImageBackground source={require('../assets/barberShopBarberOpenings.jpg')} resizeMode="cover" style={{flex:1,justifyContent:"center",alignItems:'center'}}>
+           <View style={{justifyContent:"center",alignItems:'center',flex:1}}>
+           <Text style={{fontStyle:'italic',fontSize:40,alignSelf:'center',color:'#2968C7',fontWeight:'bold',textShadowOffset:{width:2,height:2},textShadowRadius:10,textShadowColor:'#EBFF61'}}>Barbers Options</Text>
+            <View style={{flexDirection:'row',width:'160%',height:10,flex:0.4,margin:10}}>
+            <View style = {{height: '100%', width: '50%',backgroundColor: '#B0E0E6',borderWidth:2,borderColor:'black',borderRadius: 12,flex:0.5,opacity:0.8}}> 
             <Text style={styles.myButtonText}>My Openings</Text>
                   <FlatList // flatlist to show opening details // blue view that contains my openings
                          contentContainerStyle={{alignSelf: 'flex-start'}}
@@ -272,42 +308,73 @@ const BarberOpenings = (props) => {
                         />  
             <TouchableOpacity onPress={deleteOpening} style={styles.myButtonContainerV2}><Text style = {styles.myButtonText}>Delete opening</Text></TouchableOpacity>
             </View>
-            <View style={styles.row2}>
+            {/* *********************************************************************************************************** */}
+
+            <View style = {{height: '100%', width: '50%',backgroundColor: '#B0E0E6',borderWidth:2,borderColor:'black',borderRadius: 12,flex:0.5,opacity:0.8}}> 
+            <Text style={styles.myButtonText}>My Booked haircuts</Text>
+                  <FlatList // flatlist to show opening details // blue view that contains my openings
+                         contentContainerStyle={{alignSelf: 'flex-start'}}
+                         numColumns={4}
+                         paddingHorizontal={50}
+                         marginLeft={10}
+                         marginBottom={10}
+                        data={barbersBookings}//which data to use
+                        renderItem= {booking => //what will be shown from the item
+                        <View style={styles.myButtonContainerV2}>
+                            <Text style={styles.myButtonText}>{booking.item.openingInfo}</Text>
+                            <Text style={styles.myButtonText}>{booking.item.username}</Text>
+                        </View>                     
+                                    }
+                        keyExtractor={booking => booking.id}//unique id for the item
+                        />  
+            </View>
+
+
+
+
+            </View>
+            <View style={{width: '100%',backgroundColor: '#B0E0E6',borderRadius: 12,flex:0.3,opacity:0.8,alignItems:'center',height:'20%'}}> 
+            <TouchableOpacity  onPress={()=>{ setModalVisibleAllUsers(!modalVisibleAllUsers)} }>
+                  <Text style={styles.myButtonText}>add Barber</Text>
+                  </TouchableOpacity>
+            <TextInput
+                style={styles.input}
+                keyboardType="default"
+                value={imageURL}
+                onChangeText={(imageURL) => setImageURL(imageURL)}
+                placeholder='Enter url to change profile picture'/>
               <Text style={styles.myButtonText}>Shifts maker</Text>
             <FlatList // dates of upcoming week to create day of work
-                        
                         data={daysOfWeek}//which data to use
                         horizontal={true}
-                        renderItem= {newOpening=> //what will be shown from the item
+                        renderItem= {day=> //what will be shown from the item
                             <TouchableOpacity onPress={() => {
-                              console.log("new opening.item: ", newOpening.item)
-                              setMonth(newOpening.item.split("-")[1])
-                              setDayOfMonth(newOpening.item.split("-")[0])
-                              console.log("month: ",month,"\nday: ",dayOfMonth)
+                              //console.log("try to fetch days/months: ", day.item)
+                              setMonth(day.item.split("-")[1])
+                              setDayOfMonth(day.item.split("-")[0])
+                              //console.log("month: ",month,"\nday: ",dayOfMonth)
                               //setModalVisible(!modalVisible)
                             }
                               } style={{borderStyle:'solid',borderColor:'black',borderRadius:12,borderWidth:3,height:90,margin:10}}>
-                            <Text style={styles.myButtonText}>{newOpening.item}</Text>
+                              {console.log('day.item: ',day.item)}
+                            <Text style={styles.myButtonText}>{day.item}</Text>
                             <Text style={styles.myButtonText}>9 - 17</Text>
                             <Text style={styles.myButtonText}>Create shift</Text>
                             </TouchableOpacity>}
                         keyExtractor={(index) => index.toString()}//unique id for the item
                         />  
-                        <TouchableOpacity onPress={()=>{ setModalVisibleAllUsers(!modalVisibleAllUsers)} }>
-                          <Text>add Barber</Text>
-                        </TouchableOpacity>
-            </View>                        
+              </View>
+            </View>
 
 
 
+            
+{/* ************************************************************************************************************* */}
+            
+                    
 
 
-
-
-
-
-
-
+{/* ********************************************************************************************* */}
 
             <Modal
                 
@@ -415,30 +482,30 @@ const BarberOpenings = (props) => {
 
 
 
-
+              </ImageBackground>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     btn: {
-        width: '25%',
-        marginTop: 10,
-        marginLeft: 4,
-        alignItems: 'center',
-        paddingHorizontal: 5,
-        paddingVertical: 5,
-        borderRadius: 30,
-        backgroundColor: '#F7567C',
-        flex:1
+      alignSelf:'center',
+      width: '25%',
+      marginTop: 12,
+      alignItems: 'center',
+      paddingVertical: 20,
+      borderRadius: 30,
+      backgroundColor: '#629BEF',
       },
       row: {
-        height: '100%',
+        height: '50%',
         width: '50%',
         backgroundColor: '#B0E0E6',
+        borderWidth:2,
+        borderColor:'black',
         borderRadius: 12,
-        marginBottom:20,
-        flex:0.5
+        flex:0.5,
+        opacity:0.8
       },
       row2: {
         height: '10%',
@@ -474,12 +541,13 @@ const styles = StyleSheet.create({
       },
       input: {
         marginTop: 20,
-        width: '100%',
+        width: '50%',
         paddingVertical: 20,
         borderRadius: 30,
         paddingHorizontal: 20,
         fontSize: 18,
         backgroundColor: '#FCFCFC',
+        alignSelf:'center'
       },
 
       myButtonContainerV2: {

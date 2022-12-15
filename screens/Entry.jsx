@@ -12,7 +12,6 @@ const Entry = (props) => {
     const [isCorrect,setIsCorrect] = useState(false);
     const [modalVisible,setModalVisible] = useState(false)
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false)
-    const image = { uri : "https://www.maxim.com/wp-content/uploads/2021/05/barbershops-2-scaled.jpg" }
     useEffect( ()=> {
       //setIsCorrect(false);
       setAllusers(false);
@@ -105,16 +104,14 @@ const Entry = (props) => {
     
     return(
       <View style={{flex:1}}>
-      <ImageBackground source={image} resizeMode="cover" style={{flex:1,justifyContent:"center"}}>
+      <ImageBackground source={require('../assets/barberShopEntryImage.jpg')} resizeMode="cover" style={{flex:1,justifyContent:"center"}}>
         
-            <Text style={{fontStyle:'italic',fontSize:50,alignSelf:'center',color:'#2968C7',fontWeight:'bold',textShadowColor:'black',textShadowOffset:{width:0,height:12},shadowOpacity:0.58,elevation:24}}>Welcome to</Text>
-            <Text style={{fontStyle:'italic',fontSize:50,alignSelf:'center',color:'#2968C7',fontWeight:'bold',textShadowColor:'black',textShadowOffset:{width:0,height:12},shadowOpacity:0.58,elevation:24}}>BarberBook</Text>
+            <Text style={{fontStyle:'italic',fontSize:50,alignSelf:'center',color:'#2968C7',fontWeight:'bold',textShadowOffset:{width:2,height:2},textShadowRadius:10,textShadowColor:'#EBFF61'}}>Welcome to</Text>
+            <Text style={{fontStyle:'italic',fontSize:50,alignSelf:'center',color:'#2968C7',fontWeight:'bold',textShadowOffset:{width:2,height:2},textShadowRadius:10,textShadowColor:'#EBFF61'}}>BarberShop</Text>
 
-            <Text style={{fontFamily:'Times New Roman',fontSize:30,alignSelf:'center',color:'#71D21B'}}>
-            Please enter your name and password to continue.
-            </Text>
 
-            <Text style={{fontFamily:'Times New Roman',fontSize:30,alignSelf:'center',color:'#71D21B',fontWeight:'bold'}}>
+
+            <Text style={{fontStyle:'italic',fontSize:30,alignSelf:'center',color:'#2968C7',fontWeight:'bold',shadowOpacity:0.58,elevation:24,textShadowOffset:{width:2,height:2},textShadowRadius:10,textShadowColor:'#EBFF61'}}>
             Username
             </Text>
 
@@ -124,7 +121,7 @@ const Entry = (props) => {
             value={username}
             onChangeText={(text) => setUsername(text)}
             />
-            <Text style={{fontFamily:'Times New Roman',fontSize:30,alignSelf:'center',color:'#71D21B',fontWeight:'bold'}}>
+            <Text style={{fontStyle:'italic',fontSize:30,alignSelf:'center',color:'#2968C7',fontWeight:'bold',shadowOpacity:0.58,elevation:24,textShadowOffset:{width:2,height:2},textShadowRadius:10,textShadowColor:'#EBFF61'}}>
             Password
             </Text>
             <TextInput
@@ -200,12 +197,13 @@ const Entry = (props) => {
 
 const styles = StyleSheet.create({
     btn: {
-        width: '100%',
+        alignSelf:'center',
+        width: '25%',
         marginTop: 12,
         alignItems: 'center',
         paddingVertical: 20,
         borderRadius: 30,
-        backgroundColor: '#F7567C',
+        backgroundColor: '#629BEF',
       },
       context: {
         textAlign: 'center',
@@ -225,7 +223,8 @@ const styles = StyleSheet.create({
       },
       input: {
         marginTop: 20,
-        width: '100%',
+        width: '50%',
+        alignSelf:'center',
         paddingVertical: 20,
         borderRadius: 30,
         paddingHorizontal: 20,
