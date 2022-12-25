@@ -4,6 +4,7 @@ import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,I
 import { FlatList } from 'react-native-gesture-handler';
 //import { AsyncStorage } from 'react-native';
 // props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף ובנוסף מכיל הרבה ספריות של REACT NATIVE
+const backEndURL = 'http://10.0.0.15:5988/';
 
 const Entry = (props) => {
     const [username,setUsername] = useState('');
@@ -15,7 +16,7 @@ const Entry = (props) => {
     useEffect( ()=> {
       //setIsCorrect(false);
       setAllusers(false);
-          fetch('http://localhost:5988/allUsers',{ // removed allusers = 
+          fetch(backEndURL+'allUsers',{ // removed allusers = 
           method: 'GET',// denpends upon your call POST or GET
           headers: {
             Accept: 'application/json',
@@ -51,7 +52,7 @@ const Entry = (props) => {
     const passwordCheck = async() => {
 
       try{
-          fetch('http://localhost:5988/checkPassword', {
+          fetch(backEndURL+'checkPassword', {
           method: 'POST',
           headers: {
             Accept: 'application/json',

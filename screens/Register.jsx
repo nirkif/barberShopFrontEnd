@@ -14,6 +14,7 @@ const Register = (props) => {
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false);
     const [isGood, setIsGood] = useState('');
     const [isGoodUserName, setIsGoodUserName] = useState('');
+    const backEndURL = 'http://10.0.0.15:5988/';
 
 
 
@@ -29,7 +30,7 @@ const Register = (props) => {
         {
           console.log("username != '' && name != '' && password != '' && phoneNumber != ''  == ",username != '' && name != '' && password != '' && phoneNumber != '');
             try{
-              await fetch('http://localhost:5988/findByUserName/'+username,{
+              await fetch(backEndURL+'findByUserName/'+username,{
                     method: 'GET',// denpends upon your call POST or GET
                     headers: {
                       Accept: 'application/json',
@@ -71,7 +72,7 @@ const Register = (props) => {
     const createAndRedirect = () => {
       console.log("starting createAndRedirect");
         try{
-          fetch('http://localhost:5988/addUser', {
+          fetch(backEndURL+'addUser', {
           method: 'POST',
           headers: {
             Accept: 'application/json',

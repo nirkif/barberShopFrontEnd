@@ -20,11 +20,12 @@ const BarberOpenings = (props) => {
     const [modalVisibleMakeBarber,setModalVisibleMakeBarber] = useState(false)
     const [imageURL,setImageURL] = useState('')
     const [barbersBookings,setBarbersBookings] = useState([])
+    const backEndURL = 'http://10.0.0.15:5988/';
 
 
     // useEffect( ()=> {
     //   setAllUsers([]);
-    //       fetch('http://localhost:5988/allUsers',{ 
+    //       fetch(backEndURL+'allUsers',{ 
     //       method: 'GET',// denpends upon your call POST or GET
     //       headers: {
     //         Accept: 'application/json',
@@ -40,7 +41,7 @@ const BarberOpenings = (props) => {
     //     console.error(error);
     // })},[])
     // useEffect( () => {
-    //         //  fetch('http://localhost:5988/findByUserName/'+props.route.params.username,{
+    //         //  fetch(backEndURL+'findByUserName/'+props.route.params.username,{
     //         //   method: 'GET',// denpends upon your call POST or GET
     //         //   headers: {
     //         //     Accept: 'application/json',
@@ -99,7 +100,7 @@ const BarberOpenings = (props) => {
 
     const fetchMyOpenings = async () => {
       setLoading(true)
-      const data = await fetch('http://localhost:5988/getOpenings/'+props.route.params.username,{
+      const data = await fetch(backEndURL+'getOpenings/'+props.route.params.username,{
                     method: 'GET',
                     headers: {
                     Accept: 'application/json',
@@ -114,7 +115,7 @@ const BarberOpenings = (props) => {
                     setMyOpeningsLength(Math.ceil(myOpenings.length / 2))
     }
     const fetchBarbersBookings = async() => {
-      const data = await fetch('http://localhost:5988/getBarberBooking/'+props.route.params.username,{
+      const data = await fetch(backEndURL+'getBarberBooking/'+props.route.params.username,{
         method: 'GET',
         headers: {
         Accept: 'application/json',
@@ -129,7 +130,7 @@ const BarberOpenings = (props) => {
 
     const fetchAllUsers = async()=>{
       setAllUsers([]);
-      fetch('http://localhost:5988/allUsers',{ 
+      fetch(backEndURL+'allUsers',{ 
       method: 'GET',// denpends upon your call POST or GET
       headers: {
         Accept: 'application/json',
@@ -176,7 +177,7 @@ const BarberOpenings = (props) => {
     const deleteOpening = async() => {
       console.log("openingID to delete: ",openingId);
       if(openingId !== ''){
-        await fetch('http://localhost:5988/deleteOpening/',{
+        await fetch(backEndURL+'deleteOpening/',{
         method: 'DELETE',
         headers: {
         Accept: 'application/json',
@@ -196,7 +197,7 @@ const BarberOpenings = (props) => {
     const createDay = async() => {
       try{
         console.log("sending request with month: ", month, "dayInMonth: ", dayOfMonth)
-        await fetch('http://localhost:5988/addOpeningsV2/',{
+        await fetch(backEndURL+'addOpeningsV2/',{
           method: 'POST',
           headers: {
           Accept: 'application/json',
@@ -222,7 +223,7 @@ const BarberOpenings = (props) => {
   const addOpening = () => {
     console.log("adding opening ");
         try{
-            fetch('http://localhost:5988/addOpening', {
+            fetch(backEndURL+'addOpening', {
             method: 'POST',
             headers: {
               Accept: 'application/json',
@@ -241,7 +242,7 @@ const BarberOpenings = (props) => {
 
   const addBarber = ()=>{
     try{
-      fetch('http://localhost:5988/addBarberFromUserId', {
+      fetch(backEndURL+'addBarberFromUserId', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -259,7 +260,7 @@ const BarberOpenings = (props) => {
     if(imageURL != null && imageURL.length>6)
     {
       try{
-        fetch('http://localhost:5988/changeProfilePicture',{
+        fetch(backEndURL+'changeProfilePicture',{
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -466,12 +467,12 @@ const BarberOpenings = (props) => {
                     >
                       <Text style={styles.textStyle}>Close</Text>
                     </Pressable>
-                    <Text style={{color:'blue',fontStyle:'italic',fontSize:'40px'}}>Add Barber</Text>
+                    <Text style={{color:'blue',fontStyle:'italic',fontSize:40}}>Add Barber</Text>
                         <FlatList 
                         data={allUsers}
                         renderItem = {user =>   
                         <TouchableOpacity onPress={()=>{console.log(user.item.classType)+setUserID(user.item.id)+setNewBarberName(user.item.username)+setModalVisibleAllUsers(!modalVisibleAllUsers)+setModalVisibleMakeBarber(!modalVisibleMakeBarber)}} style={styles.myButtonContainer}>
-                        <Text style={{color:'black',fontStyle:'italic',fontSize:'30px',marginHorizontal:'auto',marginVertical:'auto'}}>{user.item.username}</Text>
+                        <Text style={{color:'black',fontStyle:'italic',fontSize:30,marginHorizontal:'auto',marginVertical:'auto'}}>{user.item.username}</Text>
                         </TouchableOpacity>
                         }
                         keyExtractor={user => user.id}
@@ -557,11 +558,11 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 12,
         borderStyle:'solid',
-        opacity:'70%',
+        opacity:0.8,
         borderWidth:2,
-        marginBottom:'10px',
+        marginBottom:10,
         flexDirection:'column',
-        marginLeft:'10px'
+        marginLeft:10
       },
       myButtonText: {
         fontSize: 18,
@@ -628,9 +629,9 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 12,
         borderStyle:'solid',
-        opacity:'70%',
+        opacity:0.8,
         borderWidth:2,
-        marginBottom:'10px',
+        marginBottom:10,
         flexDirection:'column'
         
       },

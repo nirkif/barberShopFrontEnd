@@ -1,11 +1,20 @@
 import React, {useState, useEffect} from 'react';
-import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,Image,ImageBackground,ActivityIndicator } from 'react-native';
+import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,Image } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-import { scale, verticalScale, moderateScale } from 'react-native-size-matters';
+const backEndURL = 'http://10.0.0.15:5988/';
+
+// import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 
 // props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף
 
 
+
+//need barbers list , openings , and bookings
+// onClick on barber -> opened flatlist with openings onClick opening -> pop up yes/no -> set to booking
+// flat list showing all bookings
+
+
+//
 const Home = (props) => {
     const [barberList , setBarberList] = useState([]);
     const [openings , setOpenings] = useState([]);
@@ -23,12 +32,16 @@ const Home = (props) => {
     const [barberToGet,setBarberToGet] = useState('')
     const [modalVisibleOpenings,setModalVisibleOpenings] = useState(false)
     const [imageUri,setImageUri] = useState('')
-    const [loading,setLoading] = useState(false)
-    const backEndURL = 'http://localhost:5988/'
-    useEffect( async()=> {
+
+    //  console.log("props: "+JSON.stringify(props))
+    //  console.log("barberList: "+JSON.stringify(barberList))
+    //  console.log("userObject: ",userObject);
+      console.log("props: ", props);
+      console.log("myBookings: ",myBookings);
+    // console.log("openingsList: "+JSON.stringify(openings))
+    useEffect( ()=> {
             console.log("fetching allBarbers");
-            setLoading(true);
-            await fetch(backEndURL+'allBarbers',{
+            fetch(backEndURL+'allBarbers',{
             method: 'GET',// denpends upon your call POST or GET
             headers: {
               Accept: 'application/json',
@@ -39,7 +52,7 @@ const Home = (props) => {
       .then((response) => response.json())
       .then((responseJson) => {
          setBarberList(responseJson)
-         }).then(fetchAvailableOpenings()).then(getMyBooking()).then(allOpenings()).then(fetchUser()).then(setLoading(false))},[])
+         }).then(fetchAvailableOpenings()).then(getMyBooking()).then(allOpenings()).then(fetchUser())},[])
          console.log(myBookings);
     ////////////////////////////////////////////////////////////////////////////////////
 //   useEffect( async()=> {
@@ -107,7 +120,7 @@ const deleteBooking = () => {
     if(userObject.classType != 'User')
     {
       return  <TouchableOpacity onPress={ () => { props.navigation.navigate('barberOpenings', {username : props.route.params.username })} } >   
-              <Text style={styles.btnText}>Barber Options</Text>
+              <Text>Barber Options</Text>
               </TouchableOpacity>
     }
     else{
@@ -222,57 +235,48 @@ const deleteBooking = () => {
 
 
     return(
+        <View style={{height:'100%',marginHorizontal:'auto',borderStyle:'solid',borderColor:'green',borderWidth:2,flex:1,width:'100%',backgroundColor:'#6F8992'}}>
+            <View>
+            
+            <Text style={styles.context}>Hello {props.route.params.username}</Text>
 
-        <View style={{height:'100%',marginHorizontal:'auto',borderWidth:2,flex:1,width:'100%'}}>
-          <ImageBackground source={require('../assets/barberShopPageCover.jpg')} resizeMode="cover" style={{flex:1,justifyContent:"center"}}>
-          <Text style={{fontStyle:'italic',fontSize:50,alignSelf:'center',color:'#2968C7',fontWeight:'bold',textShadowOffset:{width:2,height:2},textShadowRadius:10,textShadowColor:'#EBFF61'}}>Hello {props.route.params.username}</Text>
-          <Text style={{fontStyle:'italic',fontSize:40,alignSelf:'center',color:'#2968C7',fontWeight:'bold',textShadowOffset:{width:2,height:2},textShadowRadius:10,textShadowColor:'#EBFF61'}}>new openings</Text>
-            <View style={{height:'25%',flex:0.8,width:'100%',justifyContent:'space-between'}}>
-              {
-                loading ? <React.Fragment><ActivityIndicator color="#F7567C" size="large"></ActivityIndicator></React.Fragment> : 
-              
+            <Text style={styles.context}>new openings</Text>
+            </View>
+            <View style={{height:'35%',borderStyle:'solid',borderColor:'black',borderWidth:2,flex:1,width:'100%',backgroundColor:'#6F8992'}}>
             <FlatList    //  flatList to show all barbers 
             data={barberList}//which data to use
             horizontal={true}
             renderItem= {barber => //what will be shown from the item
-                        <View style={{borderRadius: 50,width: '500px',margin: 20,height: 200,backgroundColor:'white',alignSelf:'flex-start',flex:1,opacity:0.8}}>
-                          <ImageBackground source={require('../assets/scissorLogo.png')} resizeMode="contain" style={{flex:1,justifyContent:"center"}}>
-                          <TouchableOpacity style={{alignContent:'flex-start',flexDirection:'row',padding:20,height:'100%'}} onPress={()=>{setBarberToGet(barber.item.username);setModalVisibleOpenings(!modalVisibleOpenings);getBarberOpeningsv2(barber.item.username)}}>
-                            <View style={{flex:1}}>
-                            <Text style={{fontStyle:'italic',fontSize:scale(15),alignSelf:'center',color:'#2968C7',fontWeight:'bold'}}>{barber.item.name}</Text>
-                            </View>
-                            <View style={{flex:0.3}}>
-                            <Image
-                        resizeMode='contain'
+                        <View style={{borderColor: '#bcbcbc',borderRadius: 10,width:200,padding:15,margin: 5,marginBottom:5,height: 200}}>
+                          <TouchableOpacity style={{alignItems:'center'}} onPress={()=>{setBarberToGet(barber.item.username);setModalVisibleOpenings(!modalVisibleOpenings);getBarberOpeningsv2(barber.item.username)}}>
+                            <Text  style={{color:'red',fontStyle:'italic',fontSize:30,marginHorizontal:'auto',marginVertical:'auto'}}>{barber.item.name}</Text>
+                        <Image
                         style={styles.tinyLogo}
                         source={{uri:barber.item.imageuri}}
                         />
-                            </View>
+                        {console.log(barber.item.imageuri)}
                         </TouchableOpacity>
-                        </ImageBackground>
                         </View>
             }
             keyExtractor={opening => opening.id}//unique id for the item
             />
-            }
             </View>
-          
             <View style={{flexDirection:'row'}}>
 
-            <View style={{height:'100%',borderStyle:'solid',borderColor:'pink',borderWidth:2,width:'80%',flex:1}}>
-            <Text style={{fontStyle:'italic',fontSize:20,alignSelf:'center',color:'#2968C7',fontWeight:'bold',textShadowOffset:{width:2,height:2},textShadowRadius:10,textShadowColor:'#EBFF61'}}>My Bookings</Text>
+            <View style={{height:200,borderStyle:'solid',borderColor:'pink',borderWidth:2,width:400,backgroundColor:'#6F8992'}}>
+            <Text>My Bookings</Text>
             <FlatList // flatlist to show booking details
                         horizontal={true}
                         data={myBookings}//which data to use
                         renderItem= {booking => //what will be shown from the item
-                                  <View style={{flex:1,margin:10,height:175,width:175,justifyContent:"center",borderRadius:20,borderWidth:1}}>
-                                        <ImageBackground source={require('../assets/bookingsLogo.png')} resizeMode="contain" >
+                                        <View style={{borderStyle:'solid',borderColor:'yellow',borderWidth:2,backgroundColor:'#6F8992',margin:15,width:'90%',borderRadius:15}}>
                                         <TouchableOpacity onPress={()=>setBookingId(booking.item.id)+setOpeningInfo(booking.item.openingInfo)+setModalVisibleDelete(!modalVisibileDelete)}>
-                                        <Text style={{fontStyle:'italic',fontSize:scale(10),alignSelf:'center',color:'#2968C7',fontFamily:'italic',fontWeight:'bold',marginBottom:'45%'}}>{booking.item.openingInfo}</Text>
-                                        <Text style={{fontStyle:'italic',fontSize:scale(12),alignSelf:'center',color:'#2968C7',fontFamily:'italic',fontWeight:'bold'}}>{booking.item.barberUsername}</Text>
+                                        <Text style={styles.myButtonText}>{booking.item.openingInfo}</Text>
+                                        <Text style={styles.myButtonText}>{booking.item.barberUsername}</Text>
+                                        
                                         </TouchableOpacity>
-                                        </ImageBackground>
-                                  </View>
+                                        
+                                        </View>
                                     }
                         keyExtractor={booking => booking.id}//unique id for the item
                         /> 
@@ -282,7 +286,7 @@ const deleteBooking = () => {
             
             </View>
             {/* <TouchableOpacity onPress={()=>{}}><Text style={styles.btn}>Delete Booking</Text></TouchableOpacity> */}
-            <View style={styles.btnv2}>          
+            <View style={styles.btn}>          
               {isBarber()}
             </View>
 
@@ -336,7 +340,7 @@ const deleteBooking = () => {
                         renderItem= {opening => //what will be shown from the item
                                       // <View style={{height:'100%',marginHorizontal:'auto',borderStyle:'solid',borderColor:'red',borderWidth:2,flexDirection:'column'}}>
                                         <TouchableOpacity onPress={()=>setOpeningId(opening.item.id)+setBarberUserName(opening.item.barberUserName)+setModalVisible(!modalVisible)+getBarberOpenings()} style={styles.myButtonContainer}>
-                                        <Text style={{color:'black',fontStyle:'italic',fontSize:'30px',marginHorizontal:'auto',marginVertical:'auto'}}>{opening.item.openingInfo}</Text>
+                                        <Text style={{color:'black',fontStyle:'italic',fontSize:30,marginHorizontal:'auto',marginVertical:'auto'}}>{opening.item.openingInfo}</Text>
                                         </TouchableOpacity>
                                     }
                         keyExtractor={opening => opening.id}//unique id for the item
@@ -432,7 +436,7 @@ const deleteBooking = () => {
                   </View>
                 </View>
               </Modal>
-              </ImageBackground>
+
         </View>
     )
 
@@ -449,21 +453,7 @@ const styles = StyleSheet.create({
         borderStyle:'solid',
         borderColor:'blue',
         backgroundColor: '#F7567C',
-        borderWidth:'2'
-      },
-      btnv2: {
-        alignSelf:'center',
-        width: '25%',
-        marginTop: 12,
-        alignItems: 'center',
-        paddingVertical: 20,
-        borderRadius: 30,
-        backgroundColor: '#629BEF',
-      },
-      btnText: {
-        fontSize: 18,
-        color: '#000000',
-        fontWeight: '700',
+        borderWidth:2
       },
       centeredView: {
         flex: 1,
@@ -515,7 +505,7 @@ const styles = StyleSheet.create({
         borderStyle:'solid',
         opacity:'70%',
         borderWidth:2,
-        marginBottom:'10px',
+        marginBottom:10,
         flexDirection:'column'
         
       },
@@ -528,9 +518,9 @@ const styles = StyleSheet.create({
         borderStyle:'solid',
         opacity:'70%',
         borderWidth:2,
-        marginBottom:'10px',
+        marginBottom:10,
         flexDirection:'column',
-        marginLeft:'50px'
+        marginLeft:50
       },
       myButtonText: {
         fontSize: 18,
@@ -540,9 +530,9 @@ const styles = StyleSheet.create({
         textTransform: "uppercase"
       },
       tinyLogo: {
-        width: 100,
-        height: 100,
-        borderRadius:1000
+        width: 50,
+        height: 50,
+        padding:35
       },
       textWrapper: {
         borderColor: '#bcbcbc',
