@@ -20,7 +20,8 @@ const BarberOpenings = (props) => {
     const [modalVisibleMakeBarber,setModalVisibleMakeBarber] = useState(false)
     const [imageURL,setImageURL] = useState('')
     const [barbersBookings,setBarbersBookings] = useState([])
-    const backEndURL = 'http://10.0.0.15:5988/';
+    const [modalDelete,setModalDelete] = useState(false)
+    const backEndURL = 'http://10.0.0.13:5988/';
 
 
     // useEffect( ()=> {
@@ -280,25 +281,27 @@ const BarberOpenings = (props) => {
 
 
     return(
-        <View>
+        <View style = {{height: '100%', width: '100%'}}>
           <ImageBackground source={require('../assets/barberShopBarberOpenings.jpg')} resizeMode="cover" style={{flex:1,justifyContent:"center",alignItems:'center'}}>
-           <View style={{justifyContent:"center",alignItems:'center',flex:1}}>
+           <View style={{justifyContent:"center",alignItems:'center',flexDirection:'column',width:'100%',height:'100%',flex:1}}>
            <Text style={{fontStyle:'italic',fontSize:40,alignSelf:'center',color:'#2968C7',fontWeight:'bold',textShadowOffset:{width:2,height:2},textShadowRadius:10,textShadowColor:'#EBFF61'}}>Barbers Options</Text>
-            <View style={{flexDirection:'row',width:'160%',height:10,flex:0.4,margin:10}}>
-            <View style = {{height: '100%', width: '50%',backgroundColor: '#B0E0E6',borderWidth:2,borderColor:'black',borderRadius: 12,flex:0.5,opacity:0.8}}> 
-            <Text style={styles.myButtonText}>My Openings</Text>
+            <View style={{flexDirection:'column',width:'100%',height:'100%',flex:1}}>
+            <View style = {{height: '100%', width: '100%',backgroundColor: '#B0E0E6',borderWidth:2,borderColor:'black',borderRadius: 12,flex:0.5, flexDirection: 'column', opacity:0.6, paddingHorizontal: 60 ,marginBottom:10}}> 
+              <Text style={styles.myButtonText}>My Openings</Text>
                   <FlatList // flatlist to show opening details // blue view that contains my openings
                          contentContainerStyle={{alignSelf: 'flex-start'}}
-                         numColumns={4}
-                         paddingHorizontal={50}
-                         marginLeft={10}
-                         marginBottom={10}
-                         //showsVerticalScrollIndicator={false}
+                         numColumns={1}
+                         paddingHorizontal={10}
+                         paddingVertical={30}
+                         alignSelf={'center'}
+                        //  marginLeft={10}
+                        //  marginBottom={10}
+                         showsVerticalScrollIndicator={true}
                          //showsHorizontalScrollIndicator={false}
                         data={myOpenings}//which data to use
                         renderItem= {opening => //what will be shown from the item
                         <View style={styles.myButtonContainerV2}>
-                        <TouchableOpacity onPress={()=>setOpeningId(opening.item.id)+console.log(opening.item.id)}>
+                        <TouchableOpacity onPress={()=>setOpeningId(opening.item.id)+console.log(opening.item.id)+setModalDelete(!modalDelete)}>
 
                             <Text style={styles.myButtonText}>{opening.item.openingInfo}</Text>
 
@@ -307,15 +310,26 @@ const BarberOpenings = (props) => {
                                     }
                         keyExtractor={opening => opening.id}//unique id for the item
                         />  
-            <TouchableOpacity onPress={deleteOpening} style={styles.myButtonContainerV2}><Text style = {styles.myButtonText}>Delete opening</Text></TouchableOpacity>
+              {/* <TouchableOpacity onPress={deleteOpening} style={{elevation: 8,
+              backgroundColor: "#ABC0C7",
+              borderRadius: 12,
+              paddingVertical: 5,
+              // paddingHorizontal: 12,
+              borderStyle:'solid',
+              opacity:0.8,
+              // borderWidth:2,
+              // marginBottom:10,
+              flexDirection:'column',
+        //  marginLeft:10
+         }}><Text style = {styles.myButtonText}>Delete opening</Text></TouchableOpacity> */}
             </View>
             {/* *********************************************************************************************************** */}
 
-            <View style = {{height: '100%', width: '50%',backgroundColor: '#B0E0E6',borderWidth:2,borderColor:'black',borderRadius: 12,flex:0.5,opacity:0.8}}> 
+            <View style = {{height: '100%', width: '100%',backgroundColor: 'blue',borderWidth:2,borderColor:'black',borderRadius: 12,flex:0.5,opacity:0.6, paddingHorizontal: 60}}> 
             <Text style={styles.myButtonText}>My Booked haircuts</Text>
                   <FlatList // flatlist to show opening details // blue view that contains my openings
                          contentContainerStyle={{alignSelf: 'flex-start'}}
-                         numColumns={4}
+                         numColumns={1}
                          paddingHorizontal={50}
                          marginLeft={10}
                          marginBottom={10}
@@ -334,8 +348,8 @@ const BarberOpenings = (props) => {
 
 
             </View>
-            <View style={{width: '100%',backgroundColor: '#B0E0E6',borderRadius: 12,flex:0.3,opacity:0.8,alignItems:'center',height:'20%'}}> 
-            <TouchableOpacity  onPress={()=>{ setModalVisibleAllUsers(!modalVisibleAllUsers)} }>
+            <View style={{width: '100%',backgroundColor: '#B0E0E6',borderRadius: 12,flex:0.7,opacity:0.6,alignItems:'center',height:'20%'}}> 
+            <TouchableOpacity style={styles.btn} onPress={()=>{ setModalVisibleAllUsers(!modalVisibleAllUsers)} }>
                   <Text style={styles.myButtonText}>add Barber</Text>
                   </TouchableOpacity>
             <TextInput
@@ -483,6 +497,36 @@ const BarberOpenings = (props) => {
 
 
 
+
+
+              <Modal animationType="slide"
+                transparent={true}
+                visible={modalDelete}
+                onRequestClose={() => {
+                  setModalDelete(!modalDelete);
+                }}
+              >
+                <View style={styles.centeredView}>
+                  <View style={styles.modalView}>
+                    <Pressable
+                      style={[styles.button, styles.buttonClose]}
+                      onPress={() => setModalDelete(!modalDelete)}
+                    >
+                      <Text style={styles.textStyle}>Close</Text>
+                    </Pressable>
+
+                    <Pressable
+                     style={[styles.button, styles.buttonClose]}
+                    onPress={() => deleteOpening()+setModalDelete(!modalDelete)+setModalVisibleSuccess(!modalVisibleSuccess)}>
+                    <Text style={{color:'black',fontStyle:'italic',fontSize:30,marginHorizontal:'auto',marginVertical:'auto'}}>Delete Opening?</Text>
+                    </Pressable>
+                    </View>
+                    </View>
+              </Modal>
+
+
+
+
               </ImageBackground>
         </View>
     )
@@ -491,10 +535,11 @@ const BarberOpenings = (props) => {
 const styles = StyleSheet.create({
     btn: {
       alignSelf:'center',
-      width: '25%',
+      width: '40%',
+      height:'10%',
       marginTop: 12,
       alignItems: 'center',
-      paddingVertical: 20,
+      // paddingVertical: 20,
       borderRadius: 30,
       backgroundColor: '#629BEF',
       },
@@ -542,7 +587,7 @@ const styles = StyleSheet.create({
       },
       input: {
         marginTop: 20,
-        width: '50%',
+        width: '80%',
         paddingVertical: 20,
         borderRadius: 30,
         paddingHorizontal: 20,
@@ -555,14 +600,14 @@ const styles = StyleSheet.create({
         elevation: 8,
         backgroundColor: "#ABC0C7",
         borderRadius: 12,
-        paddingVertical: 10,
-        paddingHorizontal: 12,
+        paddingVertical: 30,
+         paddingHorizontal: 12,
         borderStyle:'solid',
         opacity:0.8,
         borderWidth:2,
-        marginBottom:10,
+         marginBottom:10,
         flexDirection:'column',
-        marginLeft:10
+         marginLeft:10
       },
       myButtonText: {
         fontSize: 18,

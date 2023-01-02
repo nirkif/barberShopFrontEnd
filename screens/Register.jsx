@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable } from 'react-native';
+import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,ImageBackground } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
 // props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף
@@ -14,7 +14,7 @@ const Register = (props) => {
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false);
     const [isGood, setIsGood] = useState('');
     const [isGoodUserName, setIsGoodUserName] = useState('');
-    const backEndURL = 'http://10.0.0.15:5988/';
+    const backEndURL = 'http://10.0.0.13:5988/';
 
 
 
@@ -37,7 +37,7 @@ const Register = (props) => {
                       'Content-Type': 'application/json',
                       'Access-Control-Allow-Origin':'*'
                     }
-                  }).then(response => response.json()).then(responseJSON => setIsGood(responseJSON))
+                  }).then(response => response.json()).then(responseJSON => setIsGood(responseJSON)).then(console.log(responseJSON))
         }catch(err) {
             setIsGood('')
             console.log("did not find username in the function findByUserName");
@@ -95,14 +95,15 @@ const Register = (props) => {
       catch(err) { console.error(err);}
     }
     return(
-        <View style={styles.container}>
+        <View >
+          <ImageBackground source={require('../assets/barberShopPageCover.jpg')} resizeMode="cover" style={{height:'100%'}}>
             <Text style={styles.title}>Register to Site</Text>
             <Text style={styles.textStyle}> User name</Text>
             <TextInput
             style={styles.input}
             keyboardType="default"
             value={username}
-            onChangeText={(text) => setUsername(text)}
+            onChangeText={(text) => setUsername(text.toLowerCase())}
             />
             <Text style={styles.textStyle}>Password</Text>
             <TextInput
@@ -122,7 +123,7 @@ const Register = (props) => {
             <Text style={styles.textStyle}>Phone Number</Text>
             <TextInput
             style={styles.input}
-            keyboardType="default"
+            keyboardType="decimal-pad"
             value={phoneNumber}
             onChangeText={(text) => setPhoneNumber(text)}
             />
@@ -219,7 +220,7 @@ const Register = (props) => {
                   </View>
                 </View>
               </Modal>
-
+              </ImageBackground>
         </View>
        
     )
@@ -253,8 +254,9 @@ const styles = StyleSheet.create({
       },
       title: {
         fontSize: 28,
-        color: '#2F4F4F',
+        color: 'teal',
         fontWeight: '800',
+        alignSelf:'center'
       },
       btnText: {
         fontSize: 18,
@@ -310,7 +312,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#2196F3",
       },
       textStyle: {
-        color: "black",
+        color: "#207FDE",
+        fontSize:20,
         fontWeight: "bold",
         textAlign: "center"
       },
