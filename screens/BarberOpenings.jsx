@@ -21,7 +21,7 @@ const BarberOpenings = (props) => {
     const [imageURL,setImageURL] = useState('')
     const [barbersBookings,setBarbersBookings] = useState([])
     const [modalDelete,setModalDelete] = useState(false)
-    const backEndURL = 'http://10.0.0.13:5988/';
+    //const backEndURL = 'http://10.0.0.16:5988/';
 
 
     // useEffect( ()=> {
@@ -56,6 +56,7 @@ const BarberOpenings = (props) => {
     //       })
 
     useEffect(() => {
+      console.log('back end url: ',backEndURL)
       fetchMyOpenings();
       fetchAllUsers();
       fetchBarbersBookings();

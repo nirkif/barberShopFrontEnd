@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,ImageBackground } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
+import { backEndURL } from './Entry';
 
 // props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף
 const Register = (props) => {
@@ -12,10 +13,8 @@ const Register = (props) => {
     const [modalVisibleInputsBlanks,setModalVisibleInputBlanks] = useState(false);
     const [modalVisibleAlreadyExist,setModalVisibleAlreadyExist] = useState(false);
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false);
-    const [isGood, setIsGood] = useState('');
+    const [isGood, setIsGood] = useState(false);
     const [isGoodUserName, setIsGoodUserName] = useState('');
-    const backEndURL = 'http://10.0.0.13:5988/';
-
 
 
 
@@ -26,7 +25,7 @@ const Register = (props) => {
     // console.log("is good username : ",isGoodUserName);
     const registerUser = async() => {
       console.log("starting registerUser");
-        if(username != '' && name != '' && password != '' && phoneNumber != '')
+        if((username != '' && username != null) && name != '' && password != '' && phoneNumber != '')
         {
           console.log("username != '' && name != '' && password != '' && phoneNumber != ''  == ",username != '' && name != '' && password != '' && phoneNumber != '');
             try{
@@ -37,16 +36,32 @@ const Register = (props) => {
                       'Content-Type': 'application/json',
                       'Access-Control-Allow-Origin':'*'
                     }
-                  }).then(response => response.json()).then(responseJSON => setIsGood(responseJSON)).then(console.log(responseJSON))
+                  }).then(responseJSON => {
+                    console.log(responseJSON)
+                    console.log(responseJSON.status)
+                    if(responseJSON.status == 200){
+                      setIsGood(true);
+                      console.log("starting else");
+                      setRedirectedUserName(username)
+                      createAndRedirect()
+                      return redirectedUsername;
+                    }
+                    else if(responseJSON.status == 404){
+                      setIsGood(false)
+
+                    }
+                  }
+                  )
+                  
         }catch(err) {
-            setIsGood('')
-            console.log("did not find username in the function findByUserName");
+            setIsGood(false)
             console.error("ERROR: ",err);
             console.error("user is not found error");
         }
 
-        console.log("condition: ",JSON.stringify(isGood) !== "");
-        if(JSON.stringify(isGood).length > 2)
+        // console.log("condition: ",JSON.stringify(isGood) !== "");
+        console.log("isGood: "+isGood);
+        if(!isGood)
         {
           console.log("starting if");
             setModalVisibleAlreadyExist(!modalVisibleAlreadyExist)
@@ -54,13 +69,7 @@ const Register = (props) => {
             setName('')
             setPassword('')
             setPhoneNumber('')
-            setIsGood('')
-        }
-        else
-        {
-            console.log("starting else");
-            setRedirectedUserName(username)
-            createAndRedirect()
+            setIsGood(false)
         }
         console.log("done with if/else");
     }
@@ -87,8 +96,7 @@ const Register = (props) => {
           })
         }).then((response) => response.json())
             setModalVisibleSuccess(!modalVisibleSuccess)
-            console.log("routing to Home");
-            props.navigation.navigate('Home', {username : redirectedUsername })
+           
           
 
         }
@@ -103,7 +111,7 @@ const Register = (props) => {
             style={styles.input}
             keyboardType="default"
             value={username}
-            onChangeText={(text) => setUsername(text.toLowerCase())}
+            onChangeText={(text) => setUsername(text)}
             />
             <Text style={styles.textStyle}>Password</Text>
             <TextInput
@@ -206,6 +214,7 @@ const Register = (props) => {
                 visible={modalVisibleSuccess}
                 onRequestClose={() => {
                   setModalVisibleSuccess(!modalVisibleSuccess);
+                  
                 }}
               >
                 <View style={styles.centeredView}>
@@ -213,7 +222,7 @@ const Register = (props) => {
                     <Text style={styles.modalText}>Hello {username} </Text>
                     <Pressable
                       style={[styles.button, styles.buttonClose]}
-                      onPress={() => setModalVisibleSuccess(!modalVisibleSuccess)}
+                      onPress={() => setModalVisibleSuccess(!modalVisibleSuccess)+props.navigation.navigate('Entry')}
                     >
                       <Text style={styles.textStyle}>Close</Text>
                     </Pressable>

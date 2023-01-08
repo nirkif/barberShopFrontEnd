@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,Image,ImageBackground } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
-const backEndURL = 'http://10.0.0.13:5988/';
+import { backEndURL } from './Entry';
+//const backEndURL = 'http://localhost:5988/';
 
 // import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 
@@ -38,6 +39,7 @@ const Home = (props) => {
     //  console.log("userObject: ",userObject);
       console.log("props: ", props);
       console.log("myBookings: ",myBookings);
+      console.log("backEndURL: ",backEndURL);
     // console.log("openingsList: "+JSON.stringify(openings))
     useEffect( ()=> {
             console.log("fetching allBarbers");
