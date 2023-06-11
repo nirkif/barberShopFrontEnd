@@ -29,29 +29,29 @@ const Register = (props) => {
         {
           console.log("username != '' && name != '' && password != '' && phoneNumber != ''  == ",username != '' && name != '' && password != '' && phoneNumber != '');
             try{
-              await fetch(backEndURL+'findByUserName/'+username,{
-                    method: 'GET',// denpends upon your call POST or GET
-                    headers: {
-                      Accept: 'application/json',
-                      'Content-Type': 'application/json',
-                      'Access-Control-Allow-Origin':'*'
-                    }
-                  }).then(responseJSON => {
-                    console.log(responseJSON)
-                    console.log(responseJSON.status)
-                    if(responseJSON.status == 200){
-                      setIsGood(true);
-                      console.log("starting else");
-                      setRedirectedUserName(username)
+              // await fetch(backEndURL+'findByUserName/'+username,{
+              //       method: 'GET',// denpends upon your call POST or GET
+              //       headers: {
+              //         Accept: 'application/json',
+              //         'Content-Type': 'application/json',
+              //         'Access-Control-Allow-Origin':'*'
+              //       }
+              //     }).then(responseJSON => {
+              //       console.log(responseJSON)
+              //       console.log(responseJSON.status)
+              //       if(responseJSON.status == 200){
+              // //         setIsGood(true);
+              //         console.log("starting else");
+              //         setRedirectedUserName(username)
                       createAndRedirect()
-                      return redirectedUsername;
-                    }
-                    else if(responseJSON.status == 404){
-                      setIsGood(false)
+                      // return redirectedUsername;
+                    // }
+                    // else if(responseJSON.status == 404){
+                    //   setIsGood(false)
 
-                    }
-                  }
-                  )
+                    // }
+                  // }
+                  // )
                   
         }catch(err) {
             setIsGood(false)

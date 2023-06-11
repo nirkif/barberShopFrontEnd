@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,Image,ImageBackground } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { backEndURL } from './Entry';
+import { deleteOpening } from './BarberOpenings';
 //const backEndURL = 'http://localhost:5988/';
 
 // import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
@@ -54,7 +55,7 @@ const Home = (props) => {
       .then((response) => response.json())
       .then((responseJson) => {
          setBarberList(responseJson)
-         }).then(fetchAvailableOpenings()).then(getMyBooking()).then(allOpenings()).then(fetchUser())},[])
+         }).then(deleteOutDatedOpenings()).then(fetchAvailableOpenings()).then(getMyBooking()).then(allOpenings()).then(fetchUser())},[])
          console.log(myBookings);
     ////////////////////////////////////////////////////////////////////////////////////
 //   useEffect( async()=> {
@@ -74,9 +75,26 @@ const Home = (props) => {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin':'*'
       }
-    }).then(response => response.json()).then(responseJSON => setUserObject(responseJSON))
+    }).then(response => response.json()).then(responseJSON => setUserObject(responseJSON)).then(console.log(userObject))
+    
     isBarber()
   }
+  /////////////////////////////////////////////////////////////////////////////////////////
+  const deleteOutDatedOpenings = async() => {
+    console.log("trying to delete outdated openings!");
+    await fetch(backEndURL+'deleteOutDatedOpenings/',{
+      method: 'DELETE',
+      headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin':'*'
+        },
+        
+      }).then(console.log(), fetchAvailableOpenings())
+  }
+  
+
+
       ////////////////////////////////////////////////////////////////////////////////////
  const fetchAvailableOpenings = () => {
   console.log("fetching Available Openings");
@@ -119,7 +137,10 @@ const deleteBooking = () => {
 }
     ////////////////////////////////////////////////////////////////////////////////////
   const isBarber = () => {
-    if(userObject.classType != 'User')
+    console.log('user:'+JSON.stringify(userObject));
+    console.log('the type of user: '+userObject.classType)
+    console.log('is statement true: '+(userObject.classType != 'User' || userObject.classType != 'undefined'));
+    if(userObject.classType != 'User' && userObject.classType != 'undefined' && userObject.classType != 'null')
     {
       return  <TouchableOpacity style={styles.btn} onPress={ () => { props.navigation.navigate('barberOpenings', {username : props.route.params.username })} } >   
               <Text>Barber Options</Text>

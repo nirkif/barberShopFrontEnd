@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,Image,ImageBackground } from 'react-native';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
+import { backEndURL } from './Entry';
 
 const BarberOpenings = (props) => {
     const [allUsers,setAllUsers] = useState([]);
@@ -171,10 +172,13 @@ const BarberOpenings = (props) => {
           ans.push(formatedDate);
         }
       }
-      console.log(ans);
+      console.log('days of the week :',ans);
       setDaysOfWeek(ans);
       return ans;
     }
+
+    
+    
 
     const deleteOpening = async() => {
       console.log("openingID to delete: ",openingId);
@@ -279,6 +283,24 @@ const BarberOpenings = (props) => {
       catch(err){ console.error('cannot change profile picture: ',err)}
     }
   }
+const deleteAllOpenings = () => {
+  try{
+    myOpenings.forEach(opening => {
+      setOpeningId(opening.openingId)
+      deleteOpening()
+      fetchMyOpenings()
+    });
+    setModalVisibleSuccess(!modalVisibleSuccess);
+
+  }
+  catch{
+    console.error('Opening ID: ',openingId)
+    console.error('List of openings: ',myOpenings)
+  }
+
+
+}
+
 
 
     return(
@@ -311,6 +333,7 @@ const BarberOpenings = (props) => {
                                     }
                         keyExtractor={opening => opening.id}//unique id for the item
                         />  
+                        
               {/* <TouchableOpacity onPress={deleteOpening} style={{elevation: 8,
               backgroundColor: "#ABC0C7",
               borderRadius: 12,
