@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "barberShopFrontEnd",
+    "slug": "barberShopFrontEnd",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/bookingsLogo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/bookingsLogo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/bookingsLogo.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./assets/bookingsLogo.png"
+    }
+  }
+}
