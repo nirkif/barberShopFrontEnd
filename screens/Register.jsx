@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import { Text,TextInput,TouchableOpacity,StyleSheet,Modal,Pressable } from 'react-native';
+import { Text,TextInput,TouchableOpacity,StyleSheet,Modal,Pressable, Platform } from 'react-native';
+import * as updates from 'expo-updates';
 import { backEndURL } from './Entry';
 import { LinearGradient } from 'expo-linear-gradient';
 import {Ionicons} from '@expo/vector-icons';
@@ -15,6 +16,17 @@ const Register = (props) => {
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false);
     const [isGood, setIsGood] = useState(false);
 
+    const reloadApp = async() => {
+          if (Platform.OS === 'web') {
+      window.location.reload();
+    } else {
+      try {
+        await updates.reloadAsync();
+      } catch (e) {
+        console.error('Failed to reload app:', e);
+      }
+    }
+    }
     const registerUser = async() => {       // יצירת משתמש
         if((username != '' && username != null) && name != '' && password != '' && phoneNumber != '')
         {
@@ -112,7 +124,7 @@ const Register = (props) => {
                 }}
               >
                         <LinearGradient colors={['#26D0CE','#1A2980' ]} style={styles.modalCard}> 
-                    <Text style={styles.modalText}>check if all inputs are not blank</Text>
+                    <Text style={styles.modalTitle}>check if all inputs are not blank</Text>
                       <Pressable
                         style={styles.modalCloseButton}
                         onPress={()=> {setModalVisibleInputBlanks(!modalVisibleInputsBlanks)}}>
@@ -131,7 +143,7 @@ const Register = (props) => {
                 }}
               >
                 <LinearGradient colors={['#26D0CE','#1A2980' ]} style={styles.modalCard}> 
-                    <Text style={styles.modalText}>Username already exist </Text>
+                    <Text style={styles.modalTitle}>Username already exist </Text>
                     <Pressable
                       style={[styles.modalCloseButton]}
                       onPress={() => setModalVisibleAlreadyExist(!modalVisibleAlreadyExist)}
@@ -152,11 +164,11 @@ const Register = (props) => {
                 }}
               >
                 <LinearGradient colors={['#26D0CE','#1A2980' ]} style={styles.modalCard}> 
-                    <Text style={styles.modalText}>Welcome {username} </Text>
+                    <Text style={styles.modalTitle}>Welcome {username} </Text>
 
                     <Pressable
                       style={[styles.modalCloseButton]}
-                      onPress={() => window.location.reload()+setModalVisibleSuccess(!modalVisibleSuccess)+props.navigation.navigate('Entry')}
+                      onPress={() => setModalVisibleSuccess(!modalVisibleSuccess)+reloadApp()+props.navigation.navigate('Entry')}
                     >
                       <Ionicons name='close-circle-outline' style={{fontSize:50,color:'red',}}></Ionicons>
                     </Pressable>
@@ -175,106 +187,18 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-  headerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
   headerTitle: {
     color: 'white',
     fontSize: 40,
     fontWeight: 'bold',
-  },
-  profileButton: {
-    padding: 10,
-  },
-  contentSection: {
-    flex: 1,
-  },
-  sectionCard: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 15,
-  },
-  sectionTitle: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  openingItem: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginRight: 10,
-    marginBottom:10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  openingText: {
-    color: '#1A2980',
-    marginRight: 10,
-  },
-  bookingItem: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginRight: 10,
-  },
-  bookingText: {
-    color: '#1A2980',
-    fontWeight: 'bold',
-  },
-  bookingSubtext: {
-    color: '#26D0CE',
+    alignSelf:'center'
   },
   shiftSection: {
     backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 15,
     padding: 15,
-    width:'35%',
+    width:Platform.OS === 'web' ?'35%' : '90%',
     alignSelf:'center'
-  },
-  shiftDay: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginRight: 10,
-    alignItems: 'center',
-  },
-  shiftDayText: {
-    color: '#1A2980',
-    fontWeight: 'bold',
-  },
-  shiftTimeText: {
-    color: '#26D0CE',
-  },
-  actionContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  actionButton: {
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    borderRadius: 10,
-    padding: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '48%',
-  },
-  actionButtonText: {
-    color: 'white',
-    marginLeft: 10,
-  },
-  headerContainer1: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-    color:'white'
   },
   // עיצובים של מודלים בשימוש
 
@@ -285,8 +209,8 @@ const styles = StyleSheet.create({
     borderWidth:2,
     padding: 30,
     marginTop:150,
-    width: '50%',
-    height:'50%',
+    width:Platform.OS === 'web' ? '50%' : '90%',
+    height:Platform.OS === 'web' ?'50%' : '50%',
     alignSelf: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -306,26 +230,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
 
   },
-    modalNewText: {
-      color: 'black',
-      fontSize: 24,
-      fontWeight: 'bold',
-      marginBottom: 15,
-      textAlign: 'center'
-  },
-  modalOption: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 15,
-    marginVertical: 10,
-    width: '15%',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignSelf: 'center',
-    alignItems: 'center',
-  },
   modalText: {
-    color: 'black',
+    color: 'white',
     fontSize: 18,
     textAlign: 'center'
   },
@@ -338,33 +244,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf:'center'
   },
-  modalButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold'
-  },
   modalCloseButton: {
     position: 'absolute',
     bottom: 10,
     right: 10,
     padding: 10
-  },
-  modalCheckButton: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    padding: 10
-  },
-  modalLogo: {
-    position: 'absolute',
-    top: 12,
-    right: 10,
-    padding: 10
-  },
-  openingBarberImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 70,
   },
 });
 
