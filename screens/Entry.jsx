@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable } from 'react-native';
+import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {Ionicons} from '@expo/vector-icons';
 // props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף ובנוסף מכיל הרבה ספריות של REACT NATIVE
-export const backEndURL = 'http://192.168.7.16:5988/';
+export const backEndURL = 'http://192.168.7.20:8080/';
 
 const Entry = (props) => {
     const [username,setUsername] = useState('');
@@ -66,6 +66,19 @@ const Entry = (props) => {
         })}
       catch(err) { console.error(err);setModalVisibleIncorrect(!modalVisibleIncorrect);}
     }
+    const isManager = () => {     
+        if("class com.example.demo.Data.Manager"== userObject.classType)
+        {
+          return  <TouchableOpacity style={styles.actionButton} onPress={ () => { props.navigation.navigate('ManagerOptions',{username : props.route.params.username})}} >   
+                  <Ionicons name="chevron-back-circle-outline" size={20} color="white"></Ionicons>
+                  <Text style={styles.actionButtonText} >Manager Options</Text>
+                  </TouchableOpacity>
+    
+        }
+        else{
+          return null;
+        }
+      }
 // ***************************************************************************
 
     const login  = async() => {                            // כניסה למשתמש
@@ -118,7 +131,6 @@ const Entry = (props) => {
             <Text style={styles.modalTitle}>
             Username
             </Text>
-
             <TextInput
             style={styles.shiftSection}
             keyboardType="default"
@@ -186,6 +198,8 @@ const Entry = (props) => {
                     </Pressable>
                     </LinearGradient>
               </Modal>
+
+              
         </LinearGradient>
        
     )
@@ -257,7 +271,7 @@ const styles = StyleSheet.create({
       backgroundColor: 'rgba(255,255,255,0.2)',
       borderRadius: 15,
       padding: 15,
-      width:500,
+      width: Platform.OS === 'web' ? 500:350,
       alignSelf:'center'
     },
     shiftDay: {
@@ -305,8 +319,8 @@ const styles = StyleSheet.create({
       borderWidth:2,
       padding: 30,
       marginTop:150,
-      width: '50%',
-      height:'50%',
+      width: Platform.OS === 'web' ? '50%':'90%',
+      height:Platform.OS === 'web' ? '50%':'50%',
       alignSelf: 'center',
       alignItems: 'center',
       shadowColor: '#000',
@@ -345,7 +359,7 @@ const styles = StyleSheet.create({
       borderRadius: 10,
       padding: 15,
       marginTop: 10,
-      width: '50%',
+      width: Platform.OS === 'web' ? '50%':'90%',
       alignItems: 'center',
       alignSelf:'center'
     },

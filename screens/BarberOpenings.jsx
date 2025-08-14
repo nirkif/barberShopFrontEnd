@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { View,Text,TextInput,TouchableOpacity,StyleSheet,Modal,Pressable,Image } from 'react-native';
+import { View,Text,TextInput,TouchableOpacity,StyleSheet,Modal,Pressable,Image,Platform,ScrollView } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { LinearGradient } from 'expo-linear-gradient';
 import {Ionicons} from '@expo/vector-icons';
@@ -16,18 +16,27 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
     const [month, setMonth] = useState('');
     const [dayOfMonth, setDayOfMonth] = useState('');
     const [userID,setUserID] = useState('')
-    const [imageURL,setImageURL] = useState('')
+    const [imageURL,setImageURL] = useState('https://www.vhv.rs/dpng/d/550-5508649_person-image-placeholder-clipart-png-download-no-profile.png')
     const [newImageURL,setNewImageURL] = useState('')
+    const [menHairCutPrice,setMenHairCutPrice] = useState()
+    const [womenHairCutPrice,setWomenHairCutPrice] = useState()
+    const [womenHairDye,setWomenDyePrice] = useState()
     const [modalDelete,setModalDelete] = useState(false)
     const [modalDeleteAll,setModalDeleteAll] = useState(false)
     const [modalUserProfile,setModalUserProfile] = useState(false)
     const [modalPicUrl,setModalPicUrl] = useState(false)
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false)
     const [modalVisibleAllUsers,setModalVisibleAllUsers] = useState(false)
-    const [modalCreateDay,setModalCreateDay] = useState(false);
+    const [modalCreateDay,setModalCreateDay] = useState(false); 
+    const [modalManagerSettings,setModalManagerSettings] = useState(false); 
 
-                                                                                                //USEEFFECT דבר זה גורם לפונקציה להתעדכן בזמן אמת
-    useEffect(() => {fetchAllUsers();fetchMyOpenings();  fetchOnlyUsers();fetchBarbersBookings();fetchUser();},[]);  // ייבוא כל המידע הנחוץ 
+    useEffect(() => {
+                      fetchAllUsers();   //USEEFFECT דבר זה גורם לפונקציה להתעדכן בזמן אמת
+                     fetchMyOpenings();
+                     fetchOnlyUsers();
+                     fetchBarbersBookings();
+                     fetchUser(),
+                     getProfit();},[]);  // ייבוא כל המידע הנחוץ 
 
     useEffect(() => {     
       if(myOpenings){
@@ -83,6 +92,21 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
       setDaysOfWeek(ans);
       return ans;
     }
+
+  const isManager = () => {     
+    if("class com.example.demo.Data.Manager"== userObject.classType)
+    {
+      return  <TouchableOpacity style={styles.actionButton} onPress={ () => { props.navigation.navigate('ManagerOptions',{username : props.route.params.username})}} >   
+              <Ionicons name="chevron-back-circle-outline" size={20} color="white"></Ionicons>
+              <Text style={styles.actionButtonText} >Manager Options</Text>
+              </TouchableOpacity>
+
+    }
+    else{
+      return null;
+    }
+  }
+
                                                                                           //בקשות REST
     const fetchMyOpenings = async () => {       //קבלת כל התורים הפנויים של המשתמש 
       const data = await fetch(backEndURL+'getOpenings/'+props.route.params.username,{
@@ -107,6 +131,17 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
         });
         const myRequestedBarbersBooking = await data.json();
         setBarbersBookings(myRequestedBarbersBooking)
+    }
+
+    const getProfit = async() =>{
+      const Profit = await fetch(backEndURL+'getProfit/',{
+        method: 'GET',
+        headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin':'*'
+          }
+        });
     }
 
     const fetchUser = async() => {                                            // קבלת משתמש
@@ -235,7 +270,7 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
 
   try {
     Promise.all(
-      myOpenings.map(async (opening) => {           // למחיקת כל התורים צריך לעשות זאת בצורה אסינכרונית כלומר צריך PROMISE
+      myOpenings.map(async (opening) => {           // למחיקת כל התורים צריך לעשות זאת בצורה אסינכרונית PROMISE
         await fetch(backEndURL+'deleteOpening/', {
           method: 'DELETE',
           headers: {
@@ -279,6 +314,7 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
 
 
     return(     
+
         <LinearGradient 
         colors={['#1A2980', '#26D0CE']} 
         style={styles.container}>
@@ -366,14 +402,10 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
             <Text style={styles.actionButtonText}>Delete All Openings</Text>
           </TouchableOpacity>
   
-          <TouchableOpacity 
-            style={styles.actionButton} 
-            onPress={() => setModalVisibleAllUsers(true)}
-          >
-            <Ionicons name="add-circle" size={24} color="white" />
-            <Text style={styles.actionButtonText}>Add Barber</Text>
-          </TouchableOpacity>
+        
         </View>
+         <View style={styles.actionContainer}>{isManager()}</View>
+
 
 {/* *********************************************************************************************     יצירת משמרת      1    */} 
             
@@ -564,11 +596,37 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
                 </LinearGradient>
               </Modal>
 
+              <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalManagerSettings}
+                onRequestClose={() => {
+                  setModalManagerSettings(!modalManagerSettings);
+                }}
+              >
+                <LinearGradient colors={['#26D0CE','#1A2980' ]} style={styles.modalCard}>
+                  <View style={{flexDirection:'row'}}>
+                  <View style={{flexDirection:'column',alignItems:'flex-start'}}>
+
+                    <Text style={styles.modalTitle}>Greetings Supreme Leader {userObject.username}</Text>
+                    </View >
+                    <View style={{flexDirection:'column-reverse',paddingLeft:100}}>
+                    </View>
+                    </View>
+                    <Pressable
+                      style={styles.modalCloseButton}
+                     onPress={()=> {setModalManagerSettings(!modalManagerSettings)}}>
+                      <Ionicons name='close-circle-outline' style={{fontSize:50,color:'red',}}></Ionicons>
+                    </Pressable>
+                </LinearGradient>
+              </Modal>
+
 
 
 
 
         </LinearGradient>
+
     )
     
 }
@@ -664,7 +722,7 @@ const styles = StyleSheet.create({
       padding: 15,
       flexDirection: 'row',
       alignItems: 'center',
-      width: '48%',
+      width: 'flex',
     },
     actionButtonText: {
       color: 'white',
@@ -686,7 +744,7 @@ const styles = StyleSheet.create({
       borderWidth:2,
       padding: 30,
       marginTop:150,
-      width: '50%',
+      width: Platform.OS === 'web' ?'50%':'90%',
       height:'50%',
       alignSelf: 'center',
       alignItems: 'center',

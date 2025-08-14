@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { View,Text,TouchableOpacity,StyleSheet,Modal,Pressable,Image } from 'react-native';
+import { View,Text,TouchableOpacity,StyleSheet,Modal,Pressable,Image,Platform } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { backEndURL } from './Entry';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -19,9 +19,6 @@ const Home = (props) => {
     const [openingInfo,setOpeningInfo] = useState([])
     const [bookingId,setBookingId] = useState('')
     const [barberToGet,setBarberToGet] = useState('')
-
-    
-    
     const [modalVisible,setModalVisible] = useState(false);
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false)
     const [modalVisibileDelete,setModalVisibleDelete] = useState(false)
@@ -46,6 +43,7 @@ const Home = (props) => {
     }).then(response => response.json()).then(responseJSON => setUserObject(responseJSON))
     
     isBarber()
+    isManager()
   }
    /////////////////////////////////////////////////////////////////////////////////////////
    const fetchBarbers = async() => {                           //קבלת כל הספרים
@@ -110,9 +108,23 @@ const deleteBooking = () => {  // מחיקת תור פנוי
 })
                         
 }
+////////////////////////////////////////////////////////////////////////////////////
+ const isManager = () => {     
+     if("class com.example.demo.Data.Manager"== userObject.classType)
+     {
+       return  <TouchableOpacity style={styles.actionButton} onPress={ () => { props.navigation.navigate('ManagerOptions',{username : props.route.params.username})}} >   
+               <Ionicons name="chevron-back-circle-outline" size={30} color="white"></Ionicons>
+               <Text style={styles.headerTitle} >Manager Options</Text>
+               </TouchableOpacity>
+ 
+     }
+     else{
+       return null;
+     }
+   }
     ////////////////////////////////////////////////////////////////////////////////////
   const isBarber = () => {                        // האם משתמש הוא ספר
-    if(userObject.classType != 'User' && userObject.classType != 'undefined' && userObject.classType != 'null')
+    if("class com.example.demo.Data.Barber"== userObject.classType)
     {
       return  <TouchableOpacity style={styles.actionButton} onPress={ () => { props.navigation.navigate('barberOpenings', {username : props.route.params.username })} } >   
               <Ionicons name="chevron-back-circle-outline" size={30} color="white"></Ionicons>
@@ -124,10 +136,6 @@ const deleteBooking = () => {  // מחיקת תור פנוי
       return null;
     }
   }
-
-
-
-
  const getMyBooking = async() => {              // קבלת כל התורים הקבועים לאותו ספר
 
     try{
@@ -174,6 +182,8 @@ const deleteBooking = () => {  // מחיקת תור פנוי
       setOpenings(myRequestedBarberOpenings);
   }catch{console.error('error fetching barbers openings');}
  }
+/////////////////////////////////////////////////////////////////////////////////////////
+ 
  /////////////////////////////////////////////////////////////////////////////////////////
  const allOpenings = async() => {                       // קבלת כל התורים הפנויים
   try{
@@ -191,6 +201,7 @@ const deleteBooking = () => {  // מחיקת תור פנוי
   }
   catch{console.error('could not fetch all openings :(');}
  }
+
     ////////////////////////////////////////////////////////////////////////////////////
   const setBookingMen = async( bookingType ) => {       // קביעת תור של גבר כלומר תור 1
     try{
@@ -218,7 +229,6 @@ const deleteBooking = () => {  // מחיקת תור פנוי
   }
  /////////////////////////////////////////////////////////////////////////////////////////
   const setBookingOther = async( bookingType ) => {       // קביעת תור של אישה כלומר בודקים תור קדימה אם אפשר לקבוע תור זה
-    console.log("this is women booking")
     for (let i = 0; i < allOpeningsObjects.length-1; i++) {
       if(allOpeningsObjects[i+2] != undefined )
       {
@@ -241,20 +251,6 @@ const deleteBooking = () => {  // מחיקת תור פנוי
         
       }}
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     return(
                 <LinearGradient colors={['#1A2980', '#26D0CE']} style={styles.container}>
@@ -322,6 +318,7 @@ const deleteBooking = () => {  // מחיקת תור פנוי
                   />
                 </View> 
                 {isBarber()}      
+                {isManager()}
 
 
 
@@ -568,9 +565,11 @@ const deleteBooking = () => {  // מחיקת תור פנוי
       backgroundColor: 'rgba(255,255,255,0.3)',
       borderRadius: 10,
       padding: 15,
+      marginTop:20,
       flexDirection: 'row',
       alignItems: 'center',
-      width: '25%',
+      width: Platform.OS === 'web' ?'25%':'60%',
+      
 
     },
     actionButtonText: {

@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
+import { reloadAsync } from 'expo-updates';
 import { Text,TextInput,TouchableOpacity,StyleSheet,Modal,Pressable, Platform } from 'react-native';
-import * as updates from 'expo-updates';
 import { backEndURL } from './Entry';
 import { LinearGradient } from 'expo-linear-gradient';
 import {Ionicons} from '@expo/vector-icons';
@@ -21,7 +21,7 @@ const Register = (props) => {
       window.location.reload();
     } else {
       try {
-        await updates.reloadAsync();
+        await reloadAsync();
       } catch (e) {
         console.error('Failed to reload app:', e);
       }
