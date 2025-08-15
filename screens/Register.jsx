@@ -16,7 +16,7 @@ const Register = (props) => {
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false);
     const [isGood, setIsGood] = useState(false);
 
-    const reloadApp = async() => {
+    const reloadApp = async() => { // עושה ריענון כללי לאפליקציה אם בוויב או באנדרויד
           if (Platform.OS === 'web') {
       window.location.reload();
     } else {

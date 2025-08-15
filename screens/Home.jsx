@@ -5,7 +5,6 @@ import { backEndURL } from './Entry';
 import { LinearGradient } from 'expo-linear-gradient';
 import {Ionicons} from '@expo/vector-icons';
 
-// props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף
 
 const Home = (props) => {
     const [barberList , setBarberList] = useState([]);
@@ -109,7 +108,7 @@ const deleteBooking = () => {  // מחיקת תור פנוי
                         
 }
 ////////////////////////////////////////////////////////////////////////////////////
- const isManager = () => {     
+ const isManager = () => {     //
      if("class com.example.demo.Data.Manager"== userObject.classType)
      {
        return  <TouchableOpacity style={styles.actionButton} onPress={ () => { props.navigation.navigate('ManagerOptions',{username : props.route.params.username})}} >   

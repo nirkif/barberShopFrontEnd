@@ -35,8 +35,8 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
                      fetchMyOpenings();
                      fetchOnlyUsers();
                      fetchBarbersBookings();
-                     fetchUser(),
-                     getProfit();},[]);  // ייבוא כל המידע הנחוץ 
+                     fetchUser()
+                    },[]);  // ייבוא כל המידע הנחוץ 
 
     useEffect(() => {     
       if(myOpenings){
@@ -93,20 +93,6 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
       return ans;
     }
 
-  const isManager = () => {     
-    if("class com.example.demo.Data.Manager"== userObject.classType)
-    {
-      return  <TouchableOpacity style={styles.actionButton} onPress={ () => { props.navigation.navigate('ManagerOptions',{username : props.route.params.username})}} >   
-              <Ionicons name="chevron-back-circle-outline" size={20} color="white"></Ionicons>
-              <Text style={styles.actionButtonText} >Manager Options</Text>
-              </TouchableOpacity>
-
-    }
-    else{
-      return null;
-    }
-  }
-
                                                                                           //בקשות REST
     const fetchMyOpenings = async () => {       //קבלת כל התורים הפנויים של המשתמש 
       const data = await fetch(backEndURL+'getOpenings/'+props.route.params.username,{
@@ -133,16 +119,6 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
         setBarbersBookings(myRequestedBarbersBooking)
     }
 
-    const getProfit = async() =>{
-      const Profit = await fetch(backEndURL+'getProfit/',{
-        method: 'GET',
-        headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin':'*'
-          }
-        });
-    }
 
     const fetchUser = async() => {                                            // קבלת משתמש
       await fetch(backEndURL+'findByUserName/'+props.route.params.username,{
@@ -292,25 +268,6 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
     console.error('Error deleting openings:', error);
   }
 }
-  const isUserOnlyListEmpty = () => {               // פונקציה זאת בודקת אם יש משתמשים רגילים שאפשר להפוך לספרים
-    if(onlyUsers.length == 0)
-      return <Text style={styles.modalTitle}>No available users</Text>
-      else{
-          return  <View style={{flex:1}}>
-                  <Text style={styles.modalTitle}>Add Barber</Text>
-                      <FlatList 
-                      style={{flex:1}}
-                      data={onlyUsers}
-                      renderItem = {user => 
-                      <TouchableOpacity onPress={()=>{setUserID(user.item.id)+addBarber()}} style={styles.modalOption}>
-                      <Text style={styles.modalText}>{user.item.username}</Text>
-                      </TouchableOpacity>
-                      }
-                      keyExtractor={user => user.id}
-                      />
-                      </View> 
-      }
-  }
 
 
     return(     
@@ -401,10 +358,7 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
             <Ionicons name="remove-circle" size={24} color="white" />
             <Text style={styles.actionButtonText}>Delete All Openings</Text>
           </TouchableOpacity>
-  
-        
         </View>
-         <View style={styles.actionContainer}>{isManager()}</View>
 
 
 {/* *********************************************************************************************     יצירת משמרת      1    */} 
@@ -453,24 +407,6 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
                       <Ionicons name='checkmark-circle-outline' style={{fontSize:50,color:'green',}}></Ionicons>
                     </Pressable>
                 </LinearGradient>
-              </Modal>
-{/* *********************************************************************************************   להפוך משתמש לספר  3    */}
-              <Modal animationType="fade"
-                transparent={true}
-                visible={modalVisibleAllUsers}
-                onRequestClose={() => {
-                  setModalVisibleAllUsers(!modalVisibleAllUsers);
-                }}
-              >
-                  <LinearGradient colors={['#26D0CE','#1A2980']} style={styles.modalCard}>
-                  {isUserOnlyListEmpty()}
-                       <Pressable 
-                      onPress={() => setModalVisibleAllUsers(!modalVisibleAllUsers)}
-                      style={styles.modalCloseButton}
-                    >
-                    <Ionicons name='close-circle-outline' style={{fontSize:50,color:'red',}}></Ionicons>
-                    </Pressable>
-              </LinearGradient>
               </Modal>
 {/* *********************************************************************************************  למחוק תור פנוי  4                */}
               <Modal animationType="fade"

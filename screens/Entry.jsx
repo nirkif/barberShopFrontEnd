@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View,Text,TextInput,Alert,TouchableOpacity,StyleSheet,Modal,Pressable,Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {Ionicons} from '@expo/vector-icons';
-// props - מידע זמני שפועל בזמן הפעלה ששומר ומבעביר מידע מדף לדף ובנוסף מכיל הרבה ספריות של REACT NATIVE
 export const backEndURL = 'http://192.168.7.20:8080/';
 
 const Entry = (props) => {
