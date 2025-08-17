@@ -65,19 +65,7 @@ const Entry = (props) => {
         })}
       catch(err) { console.error(err);setModalVisibleIncorrect(!modalVisibleIncorrect);}
     }
-    const isManager = () => {     
-        if("class com.example.demo.Data.Manager"== userObject.classType)
-        {
-          return  <TouchableOpacity style={styles.actionButton} onPress={ () => { props.navigation.navigate('ManagerOptions',{username : props.route.params.username})}} >   
-                  <Ionicons name="chevron-back-circle-outline" size={20} color="white"></Ionicons>
-                  <Text style={styles.actionButtonText} >Manager Options</Text>
-                  </TouchableOpacity>
-    
-        }
-        else{
-          return null;
-        }
-      }
+  
 // ***************************************************************************
 
     const login  = async() => {                            // כניסה למשתמש
