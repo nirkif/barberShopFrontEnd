@@ -19,7 +19,6 @@ const ManagerOptions = (props) => {
     const [allItems,setAllItems] = useState([])
     const [profit,SetProfit] = useState('')
     const [monthlyProfit,setMonthlyProfit]= useState('')
-    const [dailyProfit,setDailyProfit]= useState('')
     const [itemId,setItemId] = useState('')
     const [item,setItem] = useState({name: '',price: 0,quantity: 0,supplier: '',lastUpdated: ''})
     const [itemName,setItemName] = useState('')
@@ -67,7 +66,7 @@ const ManagerOptions = (props) => {
         
       }
 // ***********************************************************************************************************************************************************************
-      const newItemAndRefresh = async()=>  // בדיקה אם פרטי המוצר לא ריקים
+      const newItemAndRefresh = async()=>  // בדיקה אם מוצר לא ריק והפנייה ליצירת מוצר חדש
       {
         try{
         dataNotEmpty()
@@ -209,24 +208,6 @@ const ManagerOptions = (props) => {
         const updatedProfit = await data.json();
         
         setMonthlyProfit(updatedProfit);
-        }
-        catch(err){return err;}
-    }
-    // ***********************************************************************************************************************************************************************
-
-     const getDailyProfit = async() => { // קבלת רווח יומי
-        try{
-        const data = await fetch(backEndURL+'getDailyProfit/',{
-        method: 'GET',
-        headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin':'*'
-          }
-        });
-        const updatedProfit = await data.json();
-        
-        setDailyProfit(updatedProfit);
         }
         catch(err){return err;}
     }
@@ -501,7 +482,7 @@ const ManagerOptions = (props) => {
 
         // ***********************************************************************************************************************************************************************
         useEffect(() => {
-          getDatedPrices(),fetchOnlyUsers(),getProfit(),fetchBarbers(),getAllBookings(),getMonthlyProfit(),getDailyProfit(),getAllItems()
+          getDatedPrices(),fetchOnlyUsers(),getProfit(),fetchBarbers(),getAllBookings(),getMonthlyProfit(),getAllItems()
         },[])
 
 
@@ -768,7 +749,7 @@ const ManagerOptions = (props) => {
                                          <View style ={{marginTop:15}}>
                                             <Text style={styles.gains}> Total Money Gained: {profit}$</Text>
                                             <Text style={styles.gains}> Monthly Money Gained: {monthlyProfit}$</Text>
-                                            <Text style={styles.gains}> Daily Money Gained: {dailyProfit}$</Text>
+                                            
                                         </View>
                                         <View style={styles.tableHeaderRow}>
                                           <View style={styles.customerNameColumn}>
@@ -1070,7 +1051,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf:'center',
     alignContent:'center',
-    width:Platform.OS === 'web' ?'100%' : '70%',
+    width:Platform.OS === 'web' ?'100%' : '100%',
   },
   headerContainer: {
     flexDirection: 'row',
