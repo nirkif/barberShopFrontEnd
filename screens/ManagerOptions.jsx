@@ -30,6 +30,10 @@ const ManagerOptions = (props) => {
     const [userToDeleteID,setUserToDelete] = useState('');
     const [notEmptyString,setNotEmptyString] = useState(false)
     const [newItemQuantity,setNewItemQuantity] = useState(0);
+    const [bookingId,setBookingId] = useState('')
+    const [bookingInfo,setBookingInfo] = useState()
+    const [bookingUsername,setBookingUsername] = useState()
+    const [bookingBarberUsername,setBookingBarberUsername] = useState()
 
 
 
@@ -44,7 +48,7 @@ const ManagerOptions = (props) => {
     const [modalItemInfo,setModalItemInfo] = useState(false);
     const [modalCreateItem,setModalCreateItem] = useState(false);
     const [modalUpdateQuantity,setModalUpdateQuantity] = useState(false);
-
+    const [modalVisibileDelete,setModalVisibleDelete] = useState(false)
     // ***********************************************************************************************************************************************************************
     const dataNotEmpty = () => {                                  // בדוק אם המשתנים של המוצר לא UNDIFNED
       if(itemName && itemSupplier && itemPrice && itemQuantity)
@@ -96,6 +100,7 @@ const ManagerOptions = (props) => {
                 })
               })
               const responseJSON = await response.json();
+              console.log("done with newItem fucntion: "+responseJSON);
               setItemName(''),
               setItemSupplier(''),
               setItemPrice(''),
@@ -125,7 +130,8 @@ const ManagerOptions = (props) => {
       // ***********************************************************************************************************************************************************************
       const getItemById = async(id) => { // מקבל מוצר ספציפי לפי ID
         try{
-        const response = await fetch(backEndURL+'getItemByID/'+itemId,{
+          setItemId(id)
+        const response = await fetch(backEndURL+'getItemByID/'+id,{
         method:'GET',
         headers: {
           Accept: 'application/json',
@@ -136,7 +142,6 @@ const ManagerOptions = (props) => {
       })
         const responseJSON = await response.json();
         setItem(responseJSON)
-        return responseJSON
         }
       catch(err){return err}
       
@@ -445,6 +450,26 @@ const ManagerOptions = (props) => {
 
         }catch(err){return err}
     }
+     // ***********************************************************************************************************************************************************************
+     const deleteBooking = () => {  // מחיקת תור פנוי   
+         fetch(backEndURL+'deleteBooking/',{
+           method: 'DELETE',
+           headers: {
+             Accept: 'application/json',
+             'Content-Type': 'application/json',
+             'Access-Control-Allow-Origin':'*'
+           },
+           body: JSON.stringify({
+             bookingId : bookingId
+         })
+         })
+           .then(() => {
+               getAllBookings()
+             })
+     .catch((error) =>{
+         console.error(error);
+     })                   
+     }
     // ***********************************************************************************************************************************************************************
         const changeMenHairCutPrice = async() => {// שינוי מחיר של תסופרת גברים
         try{
@@ -467,11 +492,13 @@ const ManagerOptions = (props) => {
 
         }catch(err){return err}
     }
+     // ***********************************************************************************************************************************************************************
       const isBookingToday = (bookingDateTime) => {
       const bookingDate = bookingDateTime.split('T')[0];
       const todayDate = new Date().toISOString().split('T')[0];
         return bookingDate === todayDate;
       };
+       // ***********************************************************************************************************************************************************************
       const isBookingOutdated = (bookingDateTime) => {
       const bookingDate = new Date(bookingDateTime);
       const today = new Date();
@@ -753,6 +780,7 @@ const ManagerOptions = (props) => {
                                         </View>
                                         <View style={styles.tableHeaderRow}>
                                           <View style={styles.customerNameColumn}>
+                                            
                                             <Text style={styles.columnHeaderText}>Customer</Text>
                                           </View>
                                           <View style={styles.barberNameColumn}>
@@ -777,48 +805,42 @@ const ManagerOptions = (props) => {
                                             const isOutdatedBooking = isBookingOutdated(booking.endTime);
                                             
                                             return (
-                                              <View style={[
-                                                styles.bookingDataRow,
-                                                isTodaysBooking && styles.todayHighlightedRow,
-                                                isOutdatedBooking && !isTodaysBooking && styles.outdatedHighlightedRow
-                                              ]}>
+                                                <TouchableOpacity 
+                                                onPress={() => {
+                                                  setBookingId(booking.id);
+                                                  setBookingInfo(booking.openingInfo);
+                                                  setBookingUsername(booking.username)
+                                                  setBookingBarberUsername(booking.barberUsername)
+                                                  setModalVisibleDelete(!modalVisibileDelete);
+                                                  
+                                                }}
+                                              >
+                                                <View 
+                                              style={[styles.bookingDataRow,isTodaysBooking && styles.todayHighlightedRow,isOutdatedBooking && !isTodaysBooking && styles.outdatedHighlightedRow]}
+                                              >
                                                 <View style={styles.customerNameColumn}>
-                                                  <Text style={[
-                                                    styles.customerUsernameText,
-                                                    isTodaysBooking && styles.todayHighlightedText,
-                                                    isOutdatedBooking && !isTodaysBooking && styles.outdatedHighlightedText
-                                                  ]}>
+                                                  <Text >
                                                     {booking.username}
                                                   </Text>
                                                 </View>
                                                 <View style={styles.barberNameColumn}>
-                                                  <Text style={[
-                                                    styles.barberUsernameText,
-                                                    isTodaysBooking && styles.todayHighlightedText,
-                                                    isOutdatedBooking && !isTodaysBooking && styles.outdatedHighlightedText
-                                                  ]}>
+                                                  <Text >
                                                     {booking.barberUsername}
                                                   </Text>
                                                 </View>
                                                 <View style={styles.priceDisplayColumn}>
-                                                  <Text style={[
-                                                    styles.priceAmountText,
-                                                    isTodaysBooking && styles.todayHighlightedText,
-                                                    isOutdatedBooking && !isTodaysBooking && styles.outdatedHighlightedText
-                                                  ]}>
+                                                  <Text >
                                                     {booking.price}
                                                   </Text>
                                                 </View>
                                                 <View style={styles.priceDisplayColumn}>
-                                                  <Text style={[
-                                                    styles.Date,
-                                                    isTodaysBooking && styles.todayHighlightedText,
-                                                    isOutdatedBooking && !isTodaysBooking && styles.outdatedHighlightedText
-                                                  ]}>
+                                                  <Text >
                                                     {booking.endTime.replace('T', '\n').substring(0, 16)}
                                                   </Text>
                                                 </View>
-                                              </View>
+                                                </View>
+                                                </TouchableOpacity>
+                                              
                                             );
                                           }}
                                           keyExtractor={booking => booking.id}
@@ -911,7 +933,6 @@ const ManagerOptions = (props) => {
                                                     <Text style={styles.modalTitle}>Item information</Text>
                                                     
                                                       
-                                                    
                                                     <View style={{padding:15,alignItems:'flex-end'}}>
                                                       {item !== null ? (
                                                           <View>
@@ -983,6 +1004,7 @@ const ManagerOptions = (props) => {
                                                     </View>
                                                   </LinearGradient>
                                           </Modal>
+                                           {/* ****************************                פירוט על מוצר                *********************************** */}
                                             <Modal animationType="fade"
                                             transparent={true}
                                             visible={modalCreateItem}
@@ -1039,6 +1061,34 @@ const ManagerOptions = (props) => {
                                          
                                           </LinearGradient>
                                       </Modal>
+                                      {/* ****************************                מחיקת תור שנקבע                *********************************** */}
+                                                    <Modal 
+                                                    animationType="fade"
+                                                    transparent={true}
+                                                    visible={modalVisibileDelete}
+                                                    onRequestClose={() => {
+                                                      setModalVisibleDelete(!modalVisibileDelete);
+                                                    }}
+                                                  >
+                                                      <LinearGradient colors={['#26D0CE','#1A2980']} style={styles.modalCard}>
+                                                      <Text style={styles.modalTitle}>delete booking? </Text>
+                                                      <Text>{bookingInfo}</Text>
+                                                      <Text>Barber: {bookingBarberUsername}</Text>
+                                                      <Text>customer: {bookingUsername}</Text>
+                                                          <Pressable
+                                                            style={styles.modalButton}
+                                                            onPress={()=>{deleteBooking(bookingId)+setModalVisibleDelete(!modalVisibileDelete)+getAllBookings()}}
+                                                          >
+                                                            <Ionicons name='trash-outline' style={{fontSize:50,color:'red',}}></Ionicons>
+                                                          </Pressable>
+                                                        <Pressable
+                                                          onPress={() => setModalVisibleDelete(!modalVisibileDelete)}
+                                                          style={styles.modalCloseButton}
+                                                        >
+                                                          <Ionicons name='close-circle-outline' style={{fontSize:50,color:'red',}}></Ionicons>
+                                                        </Pressable>
+                                                    </LinearGradient>
+                                                  </Modal>
             </LinearGradient>
             
 

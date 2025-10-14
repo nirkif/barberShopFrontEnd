@@ -104,8 +104,7 @@ const deleteBooking = () => {  // מחיקת תור פנוי
         })
 .catch((error) =>{
     console.error(error);
-})
-                        
+})                   
 }
 ////////////////////////////////////////////////////////////////////////////////////
  const isManager = () => {     //
@@ -285,7 +284,7 @@ const deleteBooking = () => {  // מחיקת תור פנוי
                 keyExtractor={barber => barber.id}
               />
               </View>
-                            <Text style={styles.headerTitle}>My Bookings</Text>
+              <Text style={styles.headerTitle}>My Bookings</Text>
 
 
                   {/*                          רשימת תורים שנקבעו ע"י המשתמש                    */}

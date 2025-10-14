@@ -28,7 +28,8 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false)
     const [modalVisibleAllUsers,setModalVisibleAllUsers] = useState(false)
     const [modalCreateDay,setModalCreateDay] = useState(false); 
-    const [modalManagerSettings,setModalManagerSettings] = useState(false); 
+    const [modalManagerSettings,setModalManagerSettings] = useState(false);
+    const [bookingId,setBookingId] = useState(Date) 
 
     useEffect(() => {
                       fetchAllUsers();   //USEEFFECT דבר זה גורם לפונקציה להתעדכן בזמן אמת
@@ -63,7 +64,7 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
     },[imageURL])
 
 
-
+      ////////////////////////////////////////////////////////////////////////////////////
     const getUpcomingWeekDays = ()=>{       // קבלת כל הימים מהיום עד הסופש הקרוב
       var ans = [];
       var day;
@@ -89,11 +90,12 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
           ans.push(formatedDate);
         }
       }
+      console.log(ans)
       setDaysOfWeek(ans);
       return ans;
     }
 
-                                                                                          //בקשות REST
+                     ////////////////////////////////////////////////////////////////////////////////////                                                                           //בקשות REST
     const fetchMyOpenings = async () => {       //קבלת כל התורים הפנויים של המשתמש 
       const data = await fetch(backEndURL+'getOpenings/'+props.route.params.username,{
                     method: 'GET',
@@ -106,6 +108,7 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
                     const myRequestedOpenings = await data.json();
                     setMyOpenings(myRequestedOpenings);
     }
+          ////////////////////////////////////////////////////////////////////////////////////
     const fetchBarbersBookings = async() => {   //קבלת כל התורים הקבועים של הספר(משתמש) 
       const data = await fetch(backEndURL+'getBarberBooking/'+props.route.params.username,{
         method: 'GET',
@@ -116,10 +119,11 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
           }
         });
         const myRequestedBarbersBooking = await data.json();
+        console.log(myRequestedBarbersBooking[0])
         setBarbersBookings(myRequestedBarbersBooking)
     }
 
-
+      ////////////////////////////////////////////////////////////////////////////////////
     const fetchUser = async() => {                                            // קבלת משתמש
       await fetch(backEndURL+'findByUserName/'+props.route.params.username,{
         method: 'GET',
@@ -131,7 +135,7 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
       }).then(response => response.json()).then(responseJSON => setUserObject(responseJSON))
     }
 
-
+      ////////////////////////////////////////////////////////////////////////////////////
     const fetchAllUsers = async() => {                                            // קבלת כל המשתמשים
       await fetch(backEndURL+'allUsers',{
         method: 'GET',
@@ -143,7 +147,7 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
       }).then(response => response.json()).then(responseJSON => setAllUsers(responseJSON))
     }
 
-
+      ////////////////////////////////////////////////////////////////////////////////////
     const fetchOnlyUsers = async()=>{      // קבלת כל המשתמשים הרגילים
       setOnlyUsers([]);
       fetch(backEndURL+'onlyUsers',{ 
@@ -160,7 +164,7 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
     })}
 
     
-
+      ////////////////////////////////////////////////////////////////////////////////////
     const deleteOpening = async() => {              // מחיקת תור פנוי
       if(openingId !== ''){
         await fetch(backEndURL+'deleteOpening/',{
@@ -177,6 +181,7 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
         fetchMyOpenings()
       }
     }
+          ////////////////////////////////////////////////////////////////////////////////////
     const createDay = async() => {      // יצירת משמרת לספר
       try{
         await fetch(backEndURL+'addOpeningsV2/',{
@@ -198,28 +203,7 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
       }
       catch(err){console.error("error creating day");}
     }
-  
-
-
-  const addBarber = ()=>{       // הוספת ספר
-    if(userID != ''){
-    try{
-      
-       fetch(backEndURL+'addBarberFromUserId', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin':'*'
-      },
-    body: JSON.stringify({
-        id:userID
-      })
-    }).then((response) => response.json().then(fetchOnlyUsers()))
-    }
-  catch(err) { console.error('cannot add barber from user id');}
-  }}
-
+        ////////////////////////////////////////////////////////////////////////////////////
   const changeImage = async() => {         // שינוי תמונה
     if(imageURL != null && imageURL.length>6)
     {
@@ -241,7 +225,7 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
       catch(err){ console.error('cannot change profile picture: ',err)}
     }
   }
-  
+        ////////////////////////////////////////////////////////////////////////////////////
 const deleteAllOpenings = async() => {     // מחיקת כל התורים הפנויים
 
   try {
@@ -267,7 +251,29 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
   } catch (error) {
     console.error('Error deleting openings:', error);
   }
-}
+} 
+      ////////////////////////////////////////////////////////////////////////////////////
+      const deleteBooking = () => {  // מחיקת תור פנוי   
+        fetch(backEndURL+'deleteBooking/',{
+          method: 'DELETE',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin':'*'
+          },
+          body: JSON.stringify({
+            bookingId : bookingId
+        })
+        })
+          .then(() => {
+              fetchAvailableOpenings()
+              getMyBooking()
+            })
+      .catch((error) =>{
+        console.error(error);
+      })
+                            
+      }
 
 
     return(     
@@ -307,11 +313,12 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
   
           <View style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>Booked Haircuts</Text>
+            
             <FlatList
               horizontal
               data={barbersBookings}
               renderItem={({item}) => (
-                <View style={styles.bookingItem}>
+                <View style={[styles.bookingItem,new Date(item.endTime) < new Date() ? {backgroundColor: '#ffcccc', borderColor: 'red', borderWidth: 1} : null]}>
                   <Text style={styles.bookingText}>{item.openingInfo}</Text>
                   <Text style={styles.bookingSubtext}>{item.username}</Text>
                   <Text style={styles.bookingSubtext}>{item.phoneNumber}</Text>
@@ -531,32 +538,7 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
                 </Pressable>
                 </LinearGradient>
               </Modal>
-
-              <Modal
-                animationType="fade"
-                transparent={true}
-                visible={modalManagerSettings}
-                onRequestClose={() => {
-                  setModalManagerSettings(!modalManagerSettings);
-                }}
-              >
-                <LinearGradient colors={['#26D0CE','#1A2980' ]} style={styles.modalCard}>
-                  <View style={{flexDirection:'row'}}>
-                  <View style={{flexDirection:'column',alignItems:'flex-start'}}>
-
-                    <Text style={styles.modalTitle}>Greetings Supreme Leader {userObject.username}</Text>
-                    </View >
-                    <View style={{flexDirection:'column-reverse',paddingLeft:100}}>
-                    </View>
-                    </View>
-                    <Pressable
-                      style={styles.modalCloseButton}
-                     onPress={()=> {setModalManagerSettings(!modalManagerSettings)}}>
-                      <Ionicons name='close-circle-outline' style={{fontSize:50,color:'red',}}></Ionicons>
-                    </Pressable>
-                </LinearGradient>
-              </Modal>
-
+             
 
 
 
