@@ -12,6 +12,7 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
     const [daysOfWeek,setDaysOfWeek ] = useState([]);
     const [userObject, setUserObject] = useState({});
     const [barbersBookings,setBarbersBookings] = useState([])
+    const [userPhoneNumber,setUserPhoneNumber] = useState()
     const [openingId,setOpeningId] = useState('');
     const [month, setMonth] = useState('');
     const [dayOfMonth, setDayOfMonth] = useState('');
@@ -28,8 +29,7 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false)
     const [modalVisibleAllUsers,setModalVisibleAllUsers] = useState(false)
     const [modalCreateDay,setModalCreateDay] = useState(false); 
-    const [modalManagerSettings,setModalManagerSettings] = useState(false);
-    const [bookingId,setBookingId] = useState(Date) 
+    const [groupedOpenings,setGroupedOpenings] = useState([]);
 
     useEffect(() => {
                       fetchAllUsers();   //USEEFFECT דבר זה גורם לפונקציה להתעדכן בזמן אמת
@@ -38,6 +38,10 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
                      fetchBarbersBookings();
                      fetchUser()
                     },[]);  // ייבוא כל המידע הנחוץ 
+    useEffect(()=> {      if(myOpenings && myOpenings.length > 0){
+                     console.log("myOpenings: ",myOpenings)
+                     setGroupedOpenings(groupOpeningsByDate(myOpenings));
+                     }},[myOpenings]);
 
     useEffect(() => {     
       if(myOpenings){
@@ -90,7 +94,6 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
           ans.push(formatedDate);
         }
       }
-      console.log(ans)
       setDaysOfWeek(ans);
       return ans;
     }
@@ -148,6 +151,7 @@ const BarberOpenings = (props) => {             // יצירת אובייקטים
     }
 
       ////////////////////////////////////////////////////////////////////////////////////
+      
     const fetchOnlyUsers = async()=>{      // קבלת כל המשתמשים הרגילים
       setOnlyUsers([]);
       fetch(backEndURL+'onlyUsers',{ 
@@ -253,28 +257,16 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
   }
 } 
       ////////////////////////////////////////////////////////////////////////////////////
-      const deleteBooking = () => {  // מחיקת תור פנוי   
-        fetch(backEndURL+'deleteBooking/',{
-          method: 'DELETE',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin':'*'
-          },
-          body: JSON.stringify({
-            bookingId : bookingId
-        })
-        })
-          .then(() => {
-              fetchAvailableOpenings()
-              getMyBooking()
-            })
-      .catch((error) =>{
-        console.error(error);
-      })
-                            
+      const groupOpeningsByDate = (openings) =>{   // מחזיר מערך מסודר לפי תאריכים וללא תורים פנויים שלא זמינים (isAvailable == true)
+        const grouped = {};
+        openings.forEach((opening) => {
+          if(!opening.isAvailable) return;
+          const date = opening.openingInfo.split("\n")[0].trim();
+          if(!grouped[date]) {grouped[date]=[]}
+          grouped[date].push(opening)
+        });
+        return Object.entries(grouped).map(([date,items]) => ({date,items}));
       }
-
 
     return(     
 
@@ -291,7 +283,7 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
         <View style={styles.contentSection}>
           <View style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>My Openings</Text>
-            <FlatList
+            {/* <FlatList
               horizontal
               data={myOpenings}
               renderItem={({item}) => (
@@ -308,7 +300,33 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
               )}
               keyExtractor={item => item.id}
               showsHorizontalScrollIndicator={true}
-            />
+            /> */}
+            <FlatList
+              data={groupedOpenings}
+              keyExtractor={(item) => item.date}
+              renderItem={({item}) => (
+                <View style = {styles.sectionCard}>
+                  <Text style={{color: 'white',fontSize: 16,fontWeight: 'bold',marginBottom: 8,}}>{item.date}</Text>
+                  <FlatList
+                    horizontal
+                    data={item.items}
+                    keyExtractor={(subItem)=> subItem.id}
+                    renderItem={({item:subItem}) => (
+                      <TouchableOpacity
+                        style={styles.openingItem}
+                        onPress={()=> {setOpeningId(subItem.id);setModalDelete(!modalDelete);}}
+                      >
+                        <Text>{subItem.openingInfo}</Text>
+                        <Ionicons name="trash" size={18} color="#FF6B6B" />
+                      </TouchableOpacity>
+                    )}
+                    
+                  >
+                  </FlatList>
+                </View>
+              )}>
+            
+            </FlatList>
           </View>
   
           <View style={styles.sectionCard}>
@@ -316,11 +334,12 @@ const deleteAllOpenings = async() => {     // מחיקת כל התורים הפ�
             
             <FlatList
               horizontal
-              data={barbersBookings}
+              data={barbersBookings.filter(booking => new Date(booking.endTime) >= new Date())}
               renderItem={({item}) => (
-                <View style={[styles.bookingItem,new Date(item.endTime) < new Date() ? {backgroundColor: '#ffcccc', borderColor: 'red', borderWidth: 1} : null]}>
+                <View style={[styles.bookingItem]}>
                   <Text style={styles.bookingText}>{item.openingInfo}</Text>
                   <Text style={styles.bookingSubtext}>{item.username}</Text>
+                  <Text style={styles.bookingSubtext}>{userPhoneNumber}</Text>
                   <Text style={styles.bookingSubtext}>{item.phoneNumber}</Text>
                  
                 </View>

@@ -34,6 +34,8 @@ const ManagerOptions = (props) => {
     const [bookingInfo,setBookingInfo] = useState()
     const [bookingUsername,setBookingUsername] = useState()
     const [bookingBarberUsername,setBookingBarberUsername] = useState()
+    const [shopPhoneNumber,setShopPhoneNumber]=useState()
+    const [newShopPhoneNumber,setNewShopPhoneNumber]=useState()
 
 
 
@@ -49,6 +51,7 @@ const ManagerOptions = (props) => {
     const [modalCreateItem,setModalCreateItem] = useState(false);
     const [modalUpdateQuantity,setModalUpdateQuantity] = useState(false);
     const [modalVisibileDelete,setModalVisibleDelete] = useState(false)
+    const [modalChangeShopPhoneNumber,setModalChangeShopPhoneNumber] = useState(false)
     // ***********************************************************************************************************************************************************************
     const dataNotEmpty = () => {                                  // בדוק אם המשתנים של המוצר לא UNDIFNED
       if(itemName && itemSupplier && itemPrice && itemQuantity)
@@ -159,6 +162,22 @@ const ManagerOptions = (props) => {
       }).then((response) => response.json()).then((responseJSON) => {setAllItems(responseJSON)})
     }
     // ***********************************************************************************************************************************************************************
+      const groupedBookingsByDate = (bookings) => { // מביא מערך של תאריכים עם התורים שנמצאים בכל תאריך
+        const grouped = {};
+        bookings.forEach((booking) => {
+          const date = booking.endTime.split('T')[0].substring(0,7); // קח את התאריך בלבד
+          if (!grouped[date]) {
+            grouped[date] = [];
+          }
+          grouped[date].push(booking);
+        });
+
+        // ממיר לאובייקט Array כדי להשתמש ב-FlatList
+        return Object.entries(grouped)
+          .sort(([a], [b]) => new Date(b) - new Date(a)) // ממיין מהתאריך האחרון לראשון
+          .map(([date, items]) => ({ date, items }));
+      };
+        // ***********************************************************************************************************************************************************************
     const getAllBookings = async() => { // קבלת כל התורים התפוסים
       await fetch(backEndURL+'getAllBookings',{
         method:'GET',
@@ -321,6 +340,41 @@ const ManagerOptions = (props) => {
           .then((response_Json_Only_Users) => {
             setOnlyUsers(response_Json_Only_Users)
           })}
+           // ***********************************************************************************************************************************************************************
+          const fetchShopPhoneNumber = async() => { // קבלת מספר טלפון של המספרה
+              const data = await fetch(backEndURL+'getMainShopPhoneNumber/',{
+                            method: 'GET',
+                            headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                            'Access-Control-Allow-Origin':'*'
+                              }
+                            });
+              const mainShopPhoneNumber = await data.json();
+              setShopPhoneNumber(mainShopPhoneNumber.phoneNumber)
+             }
+            // ***********************************************************************************************************************************************************************
+
+             const updatePhoneNumber = async() => {                     // יצירת משתמש
+                     try{
+                       await fetch(backEndURL+'updateShopPhoneNumber', {
+                       method: 'PUT',
+                       headers: {
+                         Accept: 'application/json',
+                         'Content-Type': 'application/json',
+                         'Access-Control-Allow-Origin':'*'
+                       },
+                     body: JSON.stringify({
+                         phoneNumber:newShopPhoneNumber
+                       })}).then((response) => { if(response.status === 404)
+                                                   {setModalTryAgain(!modalTryAgain)}
+                                               else
+                                                   {fetchShopPhoneNumber()}})
+                       
+                        
+                     }
+                   catch(err) { console.error(err);}
+                 }
     // ***********************************************************************************************************************************************************************
           const isUserOnlyListEmpty = () => {               // פונקציה זאת בודקת אם יש משתמשים רגילים שאפשר להפוך לספרים
               if(onlyUsers.length == 0)
@@ -492,24 +546,11 @@ const ManagerOptions = (props) => {
 
         }catch(err){return err}
     }
-     // ***********************************************************************************************************************************************************************
-      const isBookingToday = (bookingDateTime) => {
-      const bookingDate = bookingDateTime.split('T')[0];
-      const todayDate = new Date().toISOString().split('T')[0];
-        return bookingDate === todayDate;
-      };
-       // ***********************************************************************************************************************************************************************
-      const isBookingOutdated = (bookingDateTime) => {
-      const bookingDate = new Date(bookingDateTime);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-        return bookingDate < today;
-      };
       
 
         // ***********************************************************************************************************************************************************************
         useEffect(() => {
-          getDatedPrices(),fetchOnlyUsers(),getProfit(),fetchBarbers(),getAllBookings(),getMonthlyProfit(),getAllItems()
+          getDatedPrices(),fetchOnlyUsers(),getProfit(),fetchBarbers(),getAllBookings(),getMonthlyProfit(),getAllItems(),fetchShopPhoneNumber()
         },[])
 
 
@@ -557,6 +598,7 @@ const ManagerOptions = (props) => {
                   </TouchableOpacity>
                   </View>
             </View>
+            <View style={{flexDirection:'row'}}>
             <View>
                       <TouchableOpacity 
                         style={styles.buttonCard} 
@@ -565,6 +607,17 @@ const ManagerOptions = (props) => {
                         <Text style={styles.gains}>Inventory</Text>
                         <Ionicons name='md-add-circle-outline' style={{fontSize:50,color:'white',}}></Ionicons>
                       </TouchableOpacity>
+            </View>
+            <View>
+                      <TouchableOpacity 
+                        style={styles.buttonCard} 
+                        onPress={() => setModalChangeShopPhoneNumber(true)}
+                      >
+                        <Text style={styles.gains}>Change Shop</Text>
+                        <Text style={styles.gains}>Phone Number</Text>
+                        <Ionicons name='md-add-circle-outline' style={{fontSize:50,color:'white',}}></Ionicons>
+                      </TouchableOpacity>
+            </View>
             </View>
             </View>
 {/*     // ************************************************************  מודאל שינוי מחיר   ***************************************************************************** */}
@@ -794,16 +847,13 @@ const ManagerOptions = (props) => {
                                           </View>
                                         </View>
                                         <View style={styles.flatListContainer}>
-                                        <FlatList
+                                        {/* <FlatList
                                           data={allBookings.slice().reverse()}
                                           horizontal={false}
                                           scrollEnabled={true}
                                           showsVerticalScrollIndicator={true}
-                                          style={styles.bookingScrollableList}
+                                          style={styles.headerContainer}
                                           renderItem={({ item: booking }) => {
-                                            const isTodaysBooking = isBookingToday(booking.endTime);
-                                            const isOutdatedBooking = isBookingOutdated(booking.endTime);
-                                            
                                             return (
                                                 <TouchableOpacity 
                                                 onPress={() => {
@@ -812,12 +862,9 @@ const ManagerOptions = (props) => {
                                                   setBookingUsername(booking.username)
                                                   setBookingBarberUsername(booking.barberUsername)
                                                   setModalVisibleDelete(!modalVisibileDelete);
-                                                  
                                                 }}
                                               >
-                                                <View 
-                                              style={[styles.bookingDataRow,isTodaysBooking && styles.todayHighlightedRow,isOutdatedBooking && !isTodaysBooking && styles.outdatedHighlightedRow]}
-                                              >
+                                                <View style={styles.tableHeaderRow}>
                                                 <View style={styles.customerNameColumn}>
                                                   <Text >
                                                     {booking.username}
@@ -844,7 +891,49 @@ const ManagerOptions = (props) => {
                                             );
                                           }}
                                           keyExtractor={booking => booking.id}
-                                        />
+                                        /> */}
+                                        <FlatList
+                                            data={groupedBookingsByDate(allBookings)}
+                                            keyExtractor={group => group.date}
+                                            renderItem={({ item: group }) => (
+                                              <View style={{ marginBottom: 15 }}>
+                                                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18, marginBottom: 5 ,alignSelf:'center'}}>
+                                                  {group.date}
+                                                </Text>
+                                                {group.items.map(booking => {
+                                                  return (
+                                                    <TouchableOpacity
+                                                      key={booking.id}
+                                                      onPress={() => {
+                                                        setBookingId(booking.id);
+                                                        setBookingInfo(booking.openingInfo);
+                                                        setBookingUsername(booking.username);
+                                                        setBookingBarberUsername(booking.barberUsername);
+                                                        setModalVisibleDelete(!modalVisibileDelete);
+                                                      }}
+                                                    >
+                                                      <View
+                                                        style={[styles.bookingDataRow]}
+                                                      >
+                                                        <View style={styles.customerNameColumn}>
+                                                          <Text>{booking.username}</Text>
+                                                        </View>
+                                                        <View style={styles.barberNameColumn}>
+                                                          <Text>{booking.barberUsername}</Text>
+                                                        </View>
+                                                        <View style={styles.priceDisplayColumn}>
+                                                          <Text>{booking.price}</Text>
+                                                        </View>
+                                                        <View style={styles.priceDisplayColumn}>
+                                                          <Text>{booking.endTime.replace('T', '\n').substring(0, 16)}</Text>
+                                                        </View>
+                                                      </View>
+                                                    </TouchableOpacity>
+                                                  );
+                                                })}
+                                              </View>
+                                            )}
+                                          />
                                         <TouchableOpacity
                                                 style={styles.modalCloseButton}
                                                 onPress={() => setModalStatistics(!modalStatisics)}
@@ -1004,7 +1093,7 @@ const ManagerOptions = (props) => {
                                                     </View>
                                                   </LinearGradient>
                                           </Modal>
-                                           {/* ****************************                פירוט על מוצר                *********************************** */}
+                                           {/* ****************************                הוספת מוצר                *********************************** */}
                                             <Modal animationType="fade"
                                             transparent={true}
                                             visible={modalCreateItem}
@@ -1087,6 +1176,44 @@ const ManagerOptions = (props) => {
                                                         >
                                                           <Ionicons name='close-circle-outline' style={{fontSize:50,color:'red',}}></Ionicons>
                                                         </Pressable>
+                                                    </LinearGradient>
+                                                  </Modal>
+                                                  {/* ****************************                שינוי מספר טלפון למספרה                *********************************** */}
+                                                  <Modal 
+                                                    animationType="fade"
+                                                    transparent={true}
+                                                    visible={modalChangeShopPhoneNumber}
+                                                    onRequestClose={() => {
+                                                      setModalChangeShopPhoneNumber(!modalChangeShopPhoneNumber);
+                                                    }}
+                                                  >
+                                                      <LinearGradient colors={['#26D0CE','#1A2980']} style={styles.modalCard2}>
+                                                        <Text style={styles.headerText}>Update Phone Number</Text>
+                                                        <Text style={styles.modalText1}>Current Phone Number: {shopPhoneNumber}</Text>
+                                                        <Text style={styles.modalText1}>New Phone Number: </Text>
+                                                        <TextInput
+                                                        style={styles.shiftSection}
+                                                        keyboardType="default"
+                                                        value={newShopPhoneNumber}
+                                                        onChangeText={(text) => setNewShopPhoneNumber(text)}
+                                                        />
+
+
+
+                                                        <View style={{flexDirection:'row'}}>
+                                                        <Pressable
+                                                          onPress={() => setModalChangeShopPhoneNumber(!modalChangeShopPhoneNumber)}
+                                                          style={styles.modalCloseButton}
+                                                        >
+                                                          <Ionicons name='close-circle-outline' style={{fontSize:50,color:'red',}}></Ionicons>
+                                                        </Pressable>
+                                                        <Pressable
+                                                          onPress={() => updatePhoneNumber()+setModalChangeShopPhoneNumber(!modalChangeShopPhoneNumber)}
+                                                          style={styles.modalCloseButton}
+                                                        >
+                                                          <Ionicons name='add-circle-outline' style={{fontSize:50,color:'green',}}></Ionicons>
+                                                        </Pressable>
+                                                        </View>
                                                     </LinearGradient>
                                                   </Modal>
             </LinearGradient>
@@ -1293,27 +1420,6 @@ bookingListContainer: {
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-  },
-  
-  todayHighlightedText: {
-    fontWeight: '700',
-    color: '#1d4ed8',
-  },
-  
-  outdatedHighlightedRow: {
-    backgroundColor: '#dcfce7',
-    borderLeftWidth: 5,
-    borderLeftColor: '#16a34a',
-    shadowColor: '#16a34a',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  
-  outdatedHighlightedText: {
-    fontWeight: '700',
-    color: '#15803d',
   },
   
   Date: {

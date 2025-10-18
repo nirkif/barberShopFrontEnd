@@ -18,15 +18,28 @@ const Home = (props) => {
     const [openingInfo,setOpeningInfo] = useState([])
     const [bookingId,setBookingId] = useState('')
     const [barberToGet,setBarberToGet] = useState('')
+    const [shopPhoneNumber,setShopPhoneNumber] = useState('')
+
     const [modalVisible,setModalVisible] = useState(false);
     const [modalVisibleSuccess,setModalVisibleSuccess] = useState(false)
     const [modalVisibileDelete,setModalVisibleDelete] = useState(false)
     const [modalVisibleOpenings,setModalVisibleOpenings] = useState(false)
     const [modalVisibleBookingFail,setModalVisibleBookingFail] = useState(false)
+    
 
     useEffect( ()=> {  
          /////////////////////////////////////////////////////////////////////// קריאה לקבלת כל המשתמשים וטיפול בעדכון דף
-            fetchBarbers().then(deleteOutDatedOpenings()).then(fetchAvailableOpenings()).then(fetchUser()).then(allOpenings()).then(getMyBooking())},[])
+         const appStart = async() => {
+            await fetchBarbers()
+            await deleteOutDatedOpenings()
+            await fetchAvailableOpenings()
+            await fetchUser()
+            await allOpenings()
+            await getMyBooking()
+            await fetchShopPhoneNumber()
+         }
+         appStart()
+        },[])
          
             
 
@@ -181,6 +194,17 @@ const deleteBooking = () => {  // מחיקת תור פנוי
   }catch{console.error('error fetching barbers openings');}
  }
 /////////////////////////////////////////////////////////////////////////////////////////
+ const groupedOpeningsByDate = (openings) => {
+  const grouped ={};
+  openings.forEach((opening) => {
+    const date = opening.startTime.split('T')[0];
+    if(!grouped[date] ){ 
+      grouped[date]=[]
+    }
+    grouped[date].push(opening)
+  })
+  return Object.entries(grouped).map(([date,items]) => ({date,items}))
+ }
  
  /////////////////////////////////////////////////////////////////////////////////////////
  const allOpenings = async() => {                       // קבלת כל התורים הפנויים
@@ -249,11 +273,25 @@ const deleteBooking = () => {  // מחיקת תור פנוי
         
       }}
   }
+   /////////////////////////////////////////////////////////////////////////////////////////
+   const fetchShopPhoneNumber = async() => {
+    const data = await fetch(backEndURL+'getMainShopPhoneNumber/',{
+                  method: 'GET',
+                  headers: {
+                  Accept: 'application/json',
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin':'*'
+                    }
+                  });
+    const mainShopPhoneNumber = await data.json();
+    setShopPhoneNumber(mainShopPhoneNumber.phoneNumber)
+   }
 
     return(
                 <LinearGradient colors={['#1A2980', '#26D0CE']} style={styles.container}>
             <View style={styles.headerContainer}>
               <Text style={styles.headerTitle}>Hello {props.route.params.username}</Text>
+              <Text style={styles.headerTitle}>Contact The Shop At: {shopPhoneNumber}</Text>
               </View>
               <View style={styles.headerContainer}>
               <Text style={styles.headerTitle}>Available Barbers</Text>
@@ -363,7 +401,7 @@ const deleteBooking = () => {  // מחיקת תור פנוי
                     <Text style={styles.modalTitle}>Available Openings</Text>
                     </View>
                       <View style={{width:'100%',flex:1}}>
-                    <FlatList
+                    {/* <FlatList
                       data={openings}            
                       style={{showsHorizontalScrollIndicator:'true'}}
                       renderItem={({ item: opening }) => (
@@ -380,7 +418,35 @@ const deleteBooking = () => {  // מחיקת תור פנוי
                         </TouchableOpacity>
                       )}
                       keyExtractor={opening => opening.id}
-                    />
+                    /> */}
+                    <FlatList
+                      data={groupedOpeningsByDate(openings)}
+                      keyExtractor={group => group.date}
+                      renderItem={({item:group}) => (
+                        <View>
+                          <Text style={styles.modalTitle}>{group.date}</Text>
+                          <FlatList
+                            data={group.items}
+                            keyExtractor={opening => opening.id}
+                            renderItem={({item:opening}) => (
+                              <TouchableOpacity
+                                style={styles.openingItem}
+                                onPress={() => {
+                                  setOpeningId(opening.id);
+                                  setBarberUserName(opening.barberUserName);
+                                  setModalVisible(!modalVisible);
+                                  getBarberOpenings();
+                                }}>
+                                
+                                <Text style={styles.openingText}>{opening.startTime.split('T')[1].substring(0,5)}</Text>
+                              </TouchableOpacity>
+                            )}>
+                          </FlatList>
+                        </View>
+                        
+
+                      )}>
+                    </FlatList>
                     </View>
                     <View style={{flexDirection:'row',marginLeft:250,marginTop:10,alignItems:'flex-start'}}>
                     <Pressable onPress={() => setModalVisibleOpenings(!modalVisibleOpenings)}>
